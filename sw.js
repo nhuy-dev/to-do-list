@@ -1,6 +1,6 @@
 // Service worker cho bản Supabase: CHỈ cache file giao diện cùng origin.
 // Tuyệt đối không cache API Supabase (supabase.co), vì dữ liệu tài khoản/việc/follow phải luôn mới.
-const CACHE = "todocute-supabase-v1";
+const CACHE = "todocute-supabase-v3";
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
