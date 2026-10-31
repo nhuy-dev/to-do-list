@@ -63,7 +63,7 @@ label{font-size:13px;font-weight:700;display:block;margin-top:10px}
 <div id="auth"></div>
 <div id="app" style="display:none">
   <div class="hero">
-  <div class="heroTop"><div class="avatar" id="avatar">🌸</div><div><p id="greet">Xin chào 👋</p><h1 id="hello">Hôm nay thật xinh!</h1></div></div>
+  <div class="heroTop"><div class="avatar" id="avatar">🌸</div><div><p id="greet">Xin chào 👋</p><h1 id="hello">Ngày hôm nay của Bae thế nào?</h1></div></div>
   <div class="quote">“<span id="quoteText"></span>”<br><button onclick="pickQuote()">↻ Đổi câu khác</button></div>
   <p id="dateLine"></p>
   <div class="weather"><div><div class="temp" id="wxTemp">--°</div><div class="small" id="wxDesc">Đang tải thời tiết…</div></div><div style="flex:1"></div><select id="citySel" onchange="changeCity(this.value)"><option value="Hà Nội">Hà Nội</option><option value="TP.HCM">TP.HCM</option><option value="Đà Nẵng">Đà Nẵng</option><option value="Hải Phòng">Hải Phòng</option><option value="Cần Thơ">Cần Thơ</option><option value="__geo__">📍 Vị trí của tôi</option></select></div>
@@ -79,13 +79,13 @@ label{font-size:13px;font-weight:700;display:block;margin-top:10px}
     <div id="view-timeline" style="display:none"><h2>Timeline bạn bè 💕</h2><p class="small">Chỉ hiện việc của những người bạn đang follow và đã bật chia sẻ timeline — bao gồm cả ghi chú của họ. Ghi chú của bạn cũng sẽ hiện ở timeline của bạn bè khi bạn bật chia sẻ.</p><div id="timelineList"></div></div>
     <div id="view-friends" style="display:none"><h2>Bạn bè 👯</h2><div class="card"><input id="friendSearch" placeholder="Tìm theo tên hoặc @username" oninput="renderFriends()"></div><div id="friendList"></div></div>
     <div id="view-profile" style="display:none"><h2>Hồ sơ của mình 🌸</h2>
-      <div class="card"><label>Tên hiển thị</label><input id="editName"><label>Username đăng nhập (không đổi, vì tài khoản Supabase gắn với username lúc đăng ký)</label><input id="editUser" disabled>
+      <div class="card"><label>Tên hiển thị</label><input id="editName"><label>Username đăng nhập (chỉ sử dụng duy nhất 1 username)</label><input id="editUser" disabled>
       <label style="display:flex;gap:8px;align-items:center"><input id="editShare" type="checkbox" style="width:auto;margin:0"> Cho bạn bè xem timeline của mình</label>
-      <p class="small">Khi bật, bạn bè đang follow bạn sẽ thấy cả việc và ghi chú của bạn ở Timeline của họ. Tắt đi là không ai thấy nữa.</p>
+      <p class="small">Khi bật, bạn bè đang follow bạn sẽ thấy cả việc và ghi chú của bạn ở Timeline của họ.</p>
       <p style="height:8px"></p><button class="primary" onclick="saveProfile()">Lưu thay đổi</button>
       <p style="height:8px"></p><button class="ghost" style="width:100%" onclick="logout()">Đăng xuất</button>
       <p class="small" id="followStats"></p></div>
-      <div class="card"><b>Về bản Supabase này</b><p class="small">Tài khoản, việc và follow lưu chung trên Supabase nên máy khác mở cùng link cũng thấy nhau. Chỉ cần đăng nhập cùng tài khoản là dữ liệu theo bạn qua máy khác.</p></div>
+      <div class="card"><b>Về app này</b><p class="small">. Mình tạo ra để phục vụ cho công việc của mình và của người quan trọng mà mình muốn connect, hiện tại chỉ chia sẻ với nhau và không công khai. App không làm với mục đích kinh doanh và lợi nhuận.</p></div>
     </div>
   </div>
 </div>
@@ -99,7 +99,7 @@ label{font-size:13px;font-weight:700;display:block;margin-top:10px}
 </div>
 <div class="sheet" id="sheet"><div class="sheetbox">
   <h2 id="sheetTitle" style="margin-top:0">Thêm việc mới ✨</h2>
-  <label>Việc cần làm</label><input id="fTitle" placeholder="Ví dụ: Ôn bài, mua sữa…">
+  <label>Việc cần làm</label><input id="fTitle" placeholder="Ví dụ: Ôn bài, đi sự kiện, thể thao,…">
   <div class="row"><div><label>Danh mục</label><select id="fCat"></select></div><div><label>Ưu tiên</label><select id="fPri"><option>Bình thường</option><option>Quan trọng</option><option>Khẩn cấp</option></select></div></div>
   <label>Ngày giờ hẹn</label><input id="fDue" type="datetime-local">
   <label>Ghi chú</label><textarea id="fNote" rows="2" placeholder="Ghi chú thêm…"></textarea>
@@ -325,7 +325,7 @@ function renderFriends(){
   document.getElementById("friendList").innerHTML=list.map(u=>{
     const fol=myFollows.includes(u.id);
     return `<div class="user"><div><b>${esc(u.display_name)}</b><div class="small">@${esc(u.username)} • ${u.share_timeline?"đang chia sẻ timeline":"chưa chia sẻ timeline"}</div></div><button class="${fol?"ghost":"primary"}" style="width:auto" onclick="toggleFollow('${u.id}')">${fol?"Đang follow":"Follow"}</button></div>`;
-  }).join("")||`<div class="center">Chưa có bạn nào khác.<br>Nhờ bạn mở cùng link này và đăng ký tài khoản nhé!</div>`;
+  }).join("")||`<div class="center">Chưa có bạn nào khác.<br>Hãy gửi link cho bạn bè cùng tham gia nha!</div>`;
 }
 async function toggleFollow(to){
   if(myFollows.includes(to)){const res=await sb.from("follows").delete().eq("follower_id",meUser.id).eq("following_id",to);if(!res.error)myFollows=myFollows.filter(x=>x!==to);}
