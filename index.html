@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>To Do Cute</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#ff7aa2">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="To Do Cute">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+*{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#fff0f5;color:#4a2b36;padding-bottom:96px}
+.wrap{max-width:520px;margin:0 auto;padding:20px 16px 8px}
+.hero{background:linear-gradient(135deg,#ffd1e3,#ffc2d4 55%,#ffe3ec);border-radius:28px;padding:20px;box-shadow:0 10px 30px rgba(255,122,162,.25)}
+.hero h1{margin:2px 0 4px;font-size:28px} .hero p{margin:0;color:#7a4a5c}
+.ring{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;background:#fff;font-weight:800;margin-top:14px}
+.card{background:#fff;border-radius:22px;padding:14px;box-shadow:0 6px 20px rgba(255,122,162,.12);margin-top:14px}
+input,select,textarea{width:100%;border:1.5px solid #ffd1e3;border-radius:14px;padding:11px 12px;font-size:15px;margin-top:6px;background:#fff8fb;outline:none}
+button{border:0;border-radius:999px;padding:11px 16px;font-weight:700;cursor:pointer}
+.primary{background:#ff7aa2;color:#fff;width:100%;padding:13px;font-size:16px}
+.ghost{background:#ffe3ec;color:#c94f7c}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0}
+.chip{white-space:nowrap;background:#fff;border:1.5px solid #ffd1e3;padding:7px 12px;border-radius:999px;font-size:13px}
+.chip.on{background:#ff7aa2;color:#fff;border-color:#ff7aa2}
+.task{display:flex;gap:11px;align-items:flex-start;padding:12px 2px;border-bottom:1px dashed #ffd9e6}
+.task:last-child{border-bottom:0}
+.circle{width:26px;height:26px;min-width:26px;border:2px solid #ff9ebb;border-radius:50%;display:grid;place-items:center;font-size:14px;background:#fff;cursor:pointer}
+.circle.done{background:#ff7aa2;color:#fff;border-color:#ff7aa2}
+.task b{display:block} .task b.done{color:#b08a97;text-decoration:line-through}
+.meta{font-size:12.5px;color:#9a6b7d;margin-top:3px}
+.tag{display:inline-block;font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;margin-right:6px}
+.over{color:#e11d48;font-weight:800;font-size:12.5px}
+h2{font-size:17px;margin:18px 0 4px} h3{font-size:14px;color:#c94f7c;margin:14px 0 2px}
+.fab{position:fixed;right:20px;bottom:92px;width:58px;height:58px;border-radius:50%;background:#ff7aa2;color:#fff;font-size:30px;box-shadow:0 10px 24px rgba(255,122,162,.5);z-index:5}
+.nav{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);display:flex;justify-content:space-around;padding:10px 6px calc(10px + env(safe-area-inset-bottom));border-top:1px solid #ffd1e3;z-index:5}
+.nav button{background:none;color:#9a6b7d;padding:6px 10px;font-size:13px}
+.nav button.on{color:#ff5c8f}
+.sheet{display:none;position:fixed;inset:0;background:rgba(74,43,54,.35);z-index:10;align-items:flex-end}
+.sheet.open{display:flex} .sheetbox{background:#fff;width:100%;max-width:520px;margin:0 auto;border-radius:26px 26px 0 0;padding:18px;max-height:88vh;overflow:auto}
+.row{display:flex;gap:8px} .row>*{flex:1}
+.small{font-size:13px;color:#9a6b7d} .center{text-align:center;padding:28px 10px;color:#9a6b7d}
+.user{display:flex;justify-content:space-between;align-items:center;padding:12px 2px;border-bottom:1px dashed #ffd9e6}
+label{font-size:13px;font-weight:700;display:block;margin-top:10px}
+.tablink{color:#ff5c8f;font-weight:800;cursor:pointer}
+.warn{background:#fff1f2;border:1.5px solid #fecdd3;color:#be123c;border-radius:14px;padding:12px;font-size:13px}
+</style>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+<div id="auth"></div>
+<div id="app" style="display:none">
+  <div class="hero"><p id="greet">Xin chào 👋</p><h1 id="hello">Hôm nay thật xinh!</h1><p id="dateLine"></p>
+  <div class="ring" id="ring">0%</div><p class="small" id="progressText" style="margin:8px 0 0"></p></div>
+  <div id="views">
+    <div id="view-tasks">
+      <div class="card"><input id="search" placeholder="Tìm việc… 🔍" oninput="render()"></div>
+      <div class="chips" id="chips"></div>
+      <div id="taskList"></div>
+    </div>
+    <div id="view-timeline" style="display:none"><h2>Timeline bạn bè 💕</h2><p class="small">Chỉ hiện việc của những người bạn đang follow và đã bật chia sẻ timeline.</p><div id="timelineList"></div></div>
+    <div id="view-friends" style="display:none"><h2>Bạn bè 👯</h2><div class="card"><input id="friendSearch" placeholder="Tìm theo tên hoặc @username" oninput="renderFriends()"></div><div id="friendList"></div></div>
+    <div id="view-profile" style="display:none"><h2>Hồ sơ của mình 🌸</h2>
+      <div class="card"><label>Tên hiển thị</label><input id="editName"><label>Username đăng nhập (không đổi, vì tài khoản Supabase gắn với username lúc đăng ký)</label><input id="editUser" disabled>
+      <label style="display:flex;gap:8px;align-items:center"><input id="editShare" type="checkbox" style="width:auto;margin:0"> Cho bạn bè xem timeline của mình</label>
+      <p style="height:8px"></p><button class="primary" onclick="saveProfile()">Lưu thay đổi</button>
+      <p style="height:8px"></p><button class="ghost" style="width:100%" onclick="logout()">Đăng xuất</button>
+      <p class="small" id="followStats"></p></div>
+      <div class="card"><b>Về bản Supabase này</b><p class="small">Tài khoản, việc và follow lưu chung trên Supabase nên máy khác mở cùng link cũng thấy nhau. Chỉ cần đăng nhập cùng tài khoản là dữ liệu theo bạn qua máy khác.</p></div>
+    </div>
+  </div>
+</div>
+</div>
+<button class="fab" id="fab" onclick="openSheet()" style="display:none">+</button>
+<div class="nav" id="nav" style="display:none">
+  <button data-v="tasks" class="on" onclick="showView('tasks',this)">📋<br>Việc</button>
+  <button data-v="timeline" onclick="showView('timeline',this)">💕<br>Timeline</button>
+  <button data-v="friends" onclick="showView('friends',this)">👯<br>Bạn bè</button>
+  <button data-v="profile" onclick="showView('profile',this)">🌸<br>Hồ sơ</button>
+</div>
+<div class="sheet" id="sheet"><div class="sheetbox">
+  <h2 id="sheetTitle" style="margin-top:0">Thêm việc mới ✨</h2>
+  <label>Việc cần làm</label><input id="fTitle" placeholder="Ví dụ: Ôn bài, mua sữa…">
+  <div class="row"><div><label>Danh mục</label><select id="fCat"></select></div><div><label>Ưu tiên</label><select id="fPri"><option>Bình thường</option><option>Quan trọng</option><option>Khẩn cấp</option></select></div></div>
+  <label>Ngày giờ hẹn</label><input id="fDue" type="datetime-local">
+  <label>Ghi chú</label><textarea id="fNote" rows="2" placeholder="Ghi chú thêm…"></textarea>
+  <p style="height:8px"></p><button class="primary" onclick="saveTask()">Lưu việc</button>
+  <p style="height:8px"></p><button class="ghost" style="width:100%" onclick="closeSheet()">Đóng</button>
+</div></div>
+<script>
+const CATS={"Cá nhân":"#ffd1e3","Công việc":"#c7d8ff","Học tập":"#d8f3dc","Sức khỏe":"#ffe8b3","Mua sắm":"#e4c1f9","Khác":"#e8e8e8"};
+const CFG = window.SUPABASE_CONFIG || {};
+const CONFIGURED = CFG.SUPABASE_URL && CFG.SUPABASE_URL.indexOf("YOUR-PROJECT") === -1 && CFG.SUPABASE_ANON_KEY && CFG.SUPABASE_ANON_KEY.indexOf("YOUR-ANON") === -1;
+const sb = CONFIGURED ? supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY) : null;
+let meUser = null, meProfile = null, myTasks = [], myFollows = [], allProfiles = [];
+let curCat = "Tất cả", editId = null, view = "tasks", isReg = false;
+function esc(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function fmt(d){if(!d)return "";const x=new Date(d);return x.toLocaleString("vi-VN",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}
+function isToday(d){if(!d)return false;const x=new Date(d),n=new Date();return x.toDateString()===n.toDateString()}
+function fakeEmail(u){return u + "@todocute.app"}
+function toLocalInput(iso){if(!iso)return "";const d=new Date(iso);const p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"T"+p(d.getHours())+":"+p(d.getMinutes())}
+function profileById(id){return allProfiles.find(p=>p.id===id)}
+function showAuth(){
+  document.getElementById("app").style.display="none";document.getElementById("nav").style.display="none";document.getElementById("fab").style.display="none";
+  document.getElementById("auth").innerHTML=`<div class="hero"><h1>To Do Cute 💕</h1><p>Đăng nhập để bắt đầu ngày mới xinh xắn nhé! Tài khoản dùng chung qua mọi máy.</p></div>
+  ${CONFIGURED ? "" : `<div class="card"><div class="warn">⚠️ Chưa cấu hình Supabase: mở file <b>config.js</b>, điền SUPABASE_URL và SUPABASE_ANON_KEY, rồi deploy lại. Xem HUONG-DAN-SETUP.md.</div></div>`}
+  <div class="card"><h2 style="margin-top:0" id="authTitle">Đăng nhập</h2>
+  <label>Username (chữ thường, số, gạch dưới, 3–20 ký tự)</label><input id="aUser" placeholder="vd: lecute">
+  <label>Tên hiển thị (khi đăng ký)</label><input id="aName" placeholder="Tên của bạn">
+  <label>Mật khẩu (ít nhất 6 ký tự)</label><input id="aPass" type="password" placeholder="••••••">
+  <p style="height:6px"></p><button class="primary" onclick="doAuth()">Vào app</button>
+  <p class="center" style="padding:14px 0 2px"><span id="authSwitch" class="tablink" onclick="toggleAuth()">Chưa có tài khoản? Đăng ký ngay →</span></p>
+  <p class="small center" id="authMsg"></p></div>`;
+}
+function toggleAuth(){isReg=!isReg;document.getElementById("authTitle").textContent=isReg?"Đăng ký":"Đăng nhập";document.getElementById("authSwitch").textContent=isReg?"Đã có tài khoản? Đăng nhập →":"Chưa có tài khoản? Đăng ký ngay →"}
+async function doAuth(){
+  const msg=document.getElementById("authMsg");
+  if(!CONFIGURED){msg.textContent="Chưa cấu hình Supabase trong config.js.";return}
+  const u=document.getElementById("aUser").value.trim().toLowerCase(), n=document.getElementById("aName").value.trim(), p=document.getElementById("aPass").value;
+  if(!/^[a-z0-9_]{3,20}$/.test(u)){msg.textContent="Username chỉ dùng chữ thường, số và gạch dưới, dài 3–20 ký tự nhé.";return}
+  if(p.length<6){msg.textContent="Mật khẩu ít nhất 6 ký tự nhé.";return}
+  if(isReg){
+    if(!n){msg.textContent="Nhập tên hiển thị để đăng ký nhé.";return}
+    const taken=await sb.from("profiles").select("username").eq("username",u).maybeSingle();
+    if(taken.data){msg.textContent="Username này đã có người dùng rồi.";return}
+    const res=await sb.auth.signUp({email:fakeEmail(u),password:p,options:{data:{username:u,display_name:n}}});
+    if(res.error){msg.textContent="Đăng ký chưa được: "+res.error.message;return}
+    const user=res.data.user;
+    if(!user){msg.textContent="Đăng ký xong nhưng chưa có phiên đăng nhập. Thử đăng nhập lại nhé.";isReg=false;toggleAuth();return}
+    const ins=await sb.from("profiles").insert({id:user.id,username:u,display_name:n});
+    if(ins.error){msg.textContent="Tài khoản đã tạo nhưng chưa lưu hồ sơ: "+ins.error.message+" — thử đăng nhập lại, app sẽ tự tạo hồ sơ.";return}
+    await boot(user);
+  } else {
+    const res=await sb.auth.signInWithPassword({email:fakeEmail(u),password:p});
+    if(res.error){msg.textContent="Sai username hoặc mật khẩu rồi.";return}
+    await boot(res.data.user);
+  }
+}
+async function ensureProfile(user){
+  let q=await sb.from("profiles").select("*").eq("id",user.id).maybeSingle();
+  if(q.data) return q.data;
+  const meta=user.user_metadata||{};
+  const u=meta.username||"", n=meta.display_name||u;
+  if(!u) return null;
+  const ins=await sb.from("profiles").insert({id:user.id,username:u,display_name:n});
+  if(ins.error) return null;
+  q=await sb.from("profiles").select("*").eq("id",user.id).maybeSingle();
+  return q.data||null;
+}
+async function loadAll(){
+  const profs=await sb.from("profiles").select("id,username,display_name,share_timeline");
+  allProfiles=profs.data||[];
+  const tasks=await sb.from("tasks").select("*").eq("owner_id",meUser.id).order("created_at",{ascending:false});
+  myTasks=tasks.data||[];
+  const fol=await sb.from("follows").select("following_id").eq("follower_id",meUser.id);
+  myFollows=(fol.data||[]).map(f=>f.following_id);
+}
+async function boot(user){
+  meUser=user;
+  meProfile=await ensureProfile(user);
+  if(!meProfile){showAuth();document.getElementById("authMsg").textContent="Không tìm thấy hồ sơ cho tài khoản này. Thử đăng ký lại bằng username khác nhé.";return}
+  await loadAll();
+  document.getElementById("auth").innerHTML="";document.getElementById("app").style.display="block";document.getElementById("nav").style.display="flex";document.getElementById("fab").style.display="block";
+  const h=new Date().getHours();
+  document.getElementById("greet").textContent=(h<11?"Buổi sáng vui vẻ ☀️":h<18?"Buổi chiều nhẹ nhàng 🌤️":"Buổi tối thư giãn 🌙")+" • "+esc(meProfile.display_name);
+  document.getElementById("dateLine").textContent=new Date().toLocaleDateString("vi-VN",{weekday:"long",day:"numeric",month:"numeric",year:"numeric"});
+  showView("tasks",document.querySelector('[data-v="tasks"]'));render();
+}
+async function logout(){if(sb) await sb.auth.signOut();meUser=null;meProfile=null;showAuth()}
+function showView(v,btn){view=v;document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("on"));if(btn)btn.classList.add("on");
+  ["tasks","timeline","friends","profile"].forEach(x=>document.getElementById("view-"+x).style.display=x===v?"block":"none");
+  if(v==="friends")renderFriends(); if(v==="timeline")renderTimeline(); if(v==="profile")renderProfile();}
+function render(){
+  if(!meProfile)return;
+  document.getElementById("chips").innerHTML=["Tất cả",...Object.keys(CATS)].map(c=>`<button class="chip ${curCat===c?"on":""}" onclick="curCat='${c}';render()">${c}</button>`).join("");
+  const q=(document.getElementById("search").value||"").toLowerCase();
+  let tasks=myTasks.filter(t=>(curCat==="Tất cả"||t.category===curCat) && (!q||t.title.toLowerCase().includes(q)));
+  const today=tasks.filter(t=>isToday(t.due_at));const pct=today.length?Math.round(today.filter(t=>t.done).length/today.length*100):(tasks.length?Math.round(tasks.filter(t=>t.done).length/tasks.length*100):0);
+  document.getElementById("ring").textContent=pct+"%";document.getElementById("ring").style.background=`conic-gradient(#ff7aa2 ${pct*3.6}deg,#ffe3ec 0deg)`;document.getElementById("ring").style.color="#ff5c8f";
+  document.getElementById("progressText").textContent=today.length?`Hôm nay: ${today.filter(t=>t.done).length}/${today.length} việc đã xong`:"Hôm nay chưa có việc hẹn, cứ thong thả nhé!";
+  const now=new Date();
+  const groups=[["⚠️ Quá hạn",tasks.filter(t=>!t.done&&t.due_at&&new Date(t.due_at)<now)],["🌞 Hôm nay",tasks.filter(t=>!t.done&&isToday(t.due_at))],["🔜 Sắp tới",tasks.filter(t=>!t.done&&t.due_at&&!isToday(t.due_at)&&new Date(t.due_at)>=now)],["📌 Chưa có ngày hẹn",tasks.filter(t=>!t.done&&!t.due_at)],["✅ Đã xong",tasks.filter(t=>t.done)]];
+  document.getElementById("taskList").innerHTML=groups.map(([title,arr])=>arr.length?`<h2>${title} (${arr.length})</h2>`+arr.map(taskRow).join(""):"").join("")||`<div class="center">Chưa có việc nào.<br>Bấm nút + để thêm việc đầu tiên nhé! 🌸</div>`;
+  if(tasks.filter(t=>t.done).length)document.getElementById("taskList").innerHTML+=`<p style="height:8px"></p><button class="ghost" style="width:100%" onclick="clearDone()">Dọn dẹp việc đã xong</button>`;
+}
+function taskRow(t){
+  const over=!t.done&&t.due_at&&new Date(t.due_at)<new Date();
+  return `<div class="task"><div class="circle ${t.done?"done":""}" onclick="toggleTask('${t.id}')">${t.done?"✓":""}</div><div style="flex:1" onclick="editTask('${t.id}')">
+  <b class="${t.done?"done":""}">${esc(t.title)}</b><div class="meta"><span class="tag" style="background:${CATS[t.category]||"#e8e8e8"}">${esc(t.category)}</span>${esc(t.priority)}${t.due_at?" • ⏰ "+fmt(t.due_at):""}</div>
+  ${over?`<div class="over">Đã quá hạn!</div>`:""}${t.note?`<div class="meta">📝 ${esc(t.note)}</div>`:""}</div>
+  <button class="ghost" onclick="delTask('${t.id}')">Xoá</button></div>`;
+}
+async function toggleTask(id){const t=myTasks.find(x=>x.id===id);if(!t)return;const res=await sb.from("tasks").update({done:!t.done}).eq("id",id);if(!res.error){t.done=!t.done;render();}}
+async function delTask(id){if(!confirm("Xoá việc này nhé?"))return;const res=await sb.from("tasks").delete().eq("id",id);if(!res.error){myTasks=myTasks.filter(x=>x.id!==id);render();}}
+async function clearDone(){const res=await sb.from("tasks").delete().eq("owner_id",meUser.id).eq("done",true);if(!res.error){myTasks=myTasks.filter(t=>!t.done);render();}}
+function openSheet(){editId=null;document.getElementById("sheetTitle").textContent="Thêm việc mới ✨";document.getElementById("fTitle").value="";document.getElementById("fDue").value="";document.getElementById("fNote").value="";document.getElementById("fCat").innerHTML=Object.keys(CATS).map(c=>`<option>${c}</option>`).join("");document.getElementById("sheet").classList.add("open")}
+function closeSheet(){document.getElementById("sheet").classList.remove("open")}
+function editTask(id){const t=myTasks.find(x=>x.id===id);if(!t)return;editId=id;document.getElementById("sheetTitle").textContent="Sửa việc ✏️";document.getElementById("fTitle").value=t.title;document.getElementById("fDue").value=toLocalInput(t.due_at);document.getElementById("fNote").value=t.note||"";document.getElementById("fCat").innerHTML=Object.keys(CATS).map(c=>`<option ${c===t.category?"selected":""}>${c}</option>`).join("");document.getElementById("fPri").value=t.priority;document.getElementById("sheet").classList.add("open")}
+async function saveTask(){
+  const title=document.getElementById("fTitle").value.trim();if(!title){alert("Nhập tên việc nhé!");return}
+  const data={title,category:document.getElementById("fCat").value,priority:document.getElementById("fPri").value,due_at:document.getElementById("fDue").value?new Date(document.getElementById("fDue").value).toISOString():null,note:document.getElementById("fNote").value.trim()};
+  if(editId){const res=await sb.from("tasks").update(data).eq("id",editId);if(res.error){alert("Lưu chưa được: "+res.error.message);return}}
+  else{const res=await sb.from("tasks").insert({owner_id:meUser.id,done:false,...data}).select().single();if(res.error){alert("Lưu chưa được: "+res.error.message);return}}
+  await loadAll();closeSheet();render();
+}
+function renderFriends(){
+  const q=(document.getElementById("friendSearch").value||"").toLowerCase();
+  const list=allProfiles.filter(u=>u.id!==meUser.id&&(!q||u.username.includes(q)||(u.display_name||"").toLowerCase().includes(q)));
+  document.getElementById("friendList").innerHTML=list.map(u=>{
+    const fol=myFollows.includes(u.id);
+    return `<div class="user"><div><b>${esc(u.display_name)}</b><div class="small">@${esc(u.username)} • ${u.share_timeline?"đang chia sẻ timeline":"chưa chia sẻ timeline"}</div></div><button class="${fol?"ghost":"primary"}" style="width:auto" onclick="toggleFollow('${u.id}')">${fol?"Đang follow":"Follow"}</button></div>`;
+  }).join("")||`<div class="center">Chưa có bạn nào khác.<br>Nhờ bạn mở cùng link này và đăng ký tài khoản nhé!</div>`;
+}
+async function toggleFollow(to){
+  if(myFollows.includes(to)){const res=await sb.from("follows").delete().eq("follower_id",meUser.id).eq("following_id",to);if(!res.error)myFollows=myFollows.filter(x=>x!==to);}
+  else{const res=await sb.from("follows").insert({follower_id:meUser.id,following_id:to});if(res.error){alert("Follow chưa được: "+res.error.message);return}myFollows.push(to);}
+  renderFriends();renderTimeline();
+}
+async function renderTimeline(){
+  const el=document.getElementById("timelineList");
+  if(!myFollows.length){el.innerHTML=`<div class="center">Chưa có gì để xem.<br>Follow một người bạn và nhờ họ bật chia sẻ timeline nhé!</div>`;return}
+  const res=await sb.from("tasks").select("*").in("owner_id",myFollows).order("due_at",{ascending:true});
+  const list=(res.data||[]).filter(t=>{const p=profileById(t.owner_id);return p&&p.share_timeline});
+  el.innerHTML=list.map(t=>{const u=profileById(t.owner_id);return `<div class="card"><b>${esc(t.title)}</b><div class="meta">👤 ${esc(u?u.display_name:t.owner_id)} • <span class="tag" style="background:${CATS[t.category]||"#e8e8e8"}">${esc(t.category)}</span>${t.done?"✅ Đã xong":"⏳ Đang làm"}${t.due_at?" • "+fmt(t.due_at):""}</div></div>`}).join("")||`<div class="center">Chưa có gì để xem.<br>Follow một người bạn và nhờ họ bật chia sẻ timeline nhé!</div>`;
+}
+function renderProfile(){document.getElementById("editName").value=meProfile.display_name;document.getElementById("editUser").value=meProfile.username;document.getElementById("editShare").checked=!!meProfile.share_timeline;
+  const f=myFollows.length;document.getElementById("followStats").textContent=`Đang follow ${f} người`}
+async function saveProfile(){
+  const nn=document.getElementById("editName").value.trim();
+  if(!nn){alert("Nhập tên hiển thị nhé!");return}
+  const res=await sb.from("profiles").update({display_name:nn,share_timeline:document.getElementById("editShare").checked}).eq("id",meUser.id);
+  if(res.error){alert("Lưu chưa được: "+res.error.message);return}
+  meProfile.display_name=nn;meProfile.share_timeline=document.getElementById("editShare").checked;
+  await loadAll();alert("Đã lưu tên mới rồi!");boot(meUser);
+}
+(async function init(){
+  if(!CONFIGURED){showAuth();return}
+  const s=await sb.auth.getSession();
+  if(s.data.session&&s.data.session.user){await boot(s.data.session.user)}else{showAuth()}
+})();
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("sw.js").catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
