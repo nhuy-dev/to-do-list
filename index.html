@@ -12,23 +12,31 @@
 <meta name="apple-mobile-web-app-title" content="To Do Cute">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <style>
-*{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#fff0f5;color:#4a2b36;padding-bottom:96px}
+*{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#fdf6ef;color:#3d2c30;padding-bottom:96px;background-image:radial-gradient(#f0d9c6 1px,transparent 1px);background-size:22px 22px}
 .wrap{max-width:520px;margin:0 auto;padding:20px 16px 8px}
-.hero{background:linear-gradient(135deg,#ffd1e3,#ffc2d4 55%,#ffe3ec);border-radius:28px;padding:20px;box-shadow:0 10px 30px rgba(255,122,162,.25)}
-.hero h1{margin:2px 0 4px;font-size:28px} .hero p{margin:0;color:#7a4a5c}
-.ring{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;background:#fff;font-weight:800;margin-top:14px}
-.card{background:#fff;border-radius:22px;padding:14px;box-shadow:0 6px 20px rgba(255,122,162,.12);margin-top:14px}
-input,select,textarea{width:100%;border:1.5px solid #ffd1e3;border-radius:14px;padding:11px 12px;font-size:15px;margin-top:6px;background:#fff8fb;outline:none}
+.hero{background:#fffdf8;border:1.5px solid #f2d5d8;border-radius:24px;padding:18px;box-shadow:0 4px 16px rgba(180,120,130,.08)}
+.hero h1{margin:2px 0 4px;font-size:26px;letter-spacing:-.3px} .hero p{margin:0;color:#7a4a5c}
+.heroTop{display:flex;gap:12px;align-items:center}
+.avatar{width:46px;height:46px;min-width:46px;border-radius:50%;background:#ffe3ec;color:#c94f7c;display:grid;place-items:center;font-weight:800;font-size:20px;border:1.5px solid #f2c2cd}
+.quote{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-size:15.5px;line-height:1.5;color:#6b4453;background:#fff6ec;border-left:3px solid #f2a0b5;border-radius:0 12px 12px 0;padding:10px 12px;margin:12px 0 8px}
+.quote button{background:none;color:#c94f7c;font-size:12.5px;padding:2px 0 0;text-decoration:underline}
+.weather{display:flex;gap:10px;align-items:center;background:#f7fbf3;border:1px solid #dcebd0;border-radius:16px;padding:11px 12px;margin-top:12px}
+.weather .temp{font-size:24px;font-weight:800;color:#3d5a34}
+.weather select{width:auto;margin:0;background:#fff;border-color:#dcebd0;font-size:13px;padding:7px 9px}
+.ring{width:68px;height:68px;border-radius:50%;display:grid;place-items:center;background:#fff;font-weight:800;margin-top:12px;border:1px solid #f2d5d8}
+.note{background:#fff8f0;border:1px dashed #e8b7c2;border-radius:12px;padding:8px 10px;margin-top:8px;font-size:13.5px;line-height:1.45;color:#6b4453;white-space:pre-wrap}
+.card{background:#fff;border:1.5px solid #f2d5d8;border-radius:20px;padding:14px;box-shadow:0 3px 12px rgba(180,120,130,.06);margin-top:14px}
+input,select,textarea{width:100%;border:1.5px solid #ecd3d8;border-radius:14px;padding:11px 12px;font-size:15px;margin-top:6px;background:#fffdf8;outline:none}
 button{border:0;border-radius:999px;padding:11px 16px;font-weight:700;cursor:pointer}
-.primary{background:#ff7aa2;color:#fff;width:100%;padding:13px;font-size:16px}
-.ghost{background:#ffe3ec;color:#c94f7c}
+.primary{background:#e76f93;color:#fff;width:100%;padding:13px;font-size:16px}
+.ghost{background:#ffeef2;color:#c94f7c}
 .chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0}
 .chip{white-space:nowrap;background:#fff;border:1.5px solid #ffd1e3;padding:7px 12px;border-radius:999px;font-size:13px}
-.chip.on{background:#ff7aa2;color:#fff;border-color:#ff7aa2}
+.chip.on{background:#e76f93;color:#fff;border-color:#e76f93}
 .task{display:flex;gap:11px;align-items:flex-start;padding:12px 2px;border-bottom:1px dashed #ffd9e6}
 .task:last-child{border-bottom:0}
-.circle{width:26px;height:26px;min-width:26px;border:2px solid #ff9ebb;border-radius:50%;display:grid;place-items:center;font-size:14px;background:#fff;cursor:pointer}
-.circle.done{background:#ff7aa2;color:#fff;border-color:#ff7aa2}
+.circle{width:26px;height:26px;min-width:26px;border:2px solid #e8a0b4;border-radius:50%;display:grid;place-items:center;font-size:14px;background:#fff;cursor:pointer}
+.circle.done{background:#e76f93;color:#fff;border-color:#e76f93}
 .task b{display:block} .task b.done{color:#b08a97;text-decoration:line-through}
 .meta{font-size:12.5px;color:#9a6b7d;margin-top:3px}
 .tag{display:inline-block;font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;margin-right:6px}
@@ -37,14 +45,14 @@ h2{font-size:17px;margin:18px 0 4px} h3{font-size:14px;color:#c94f7c;margin:14px
 .fab{position:fixed;right:20px;bottom:92px;width:58px;height:58px;border-radius:50%;background:#ff7aa2;color:#fff;font-size:30px;box-shadow:0 10px 24px rgba(255,122,162,.5);z-index:5}
 .nav{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);display:flex;justify-content:space-around;padding:10px 6px calc(10px + env(safe-area-inset-bottom));border-top:1px solid #ffd1e3;z-index:5}
 .nav button{background:none;color:#9a6b7d;padding:6px 10px;font-size:13px}
-.nav button.on{color:#ff5c8f}
+.nav button.on{color:#d14f7c}
 .sheet{display:none;position:fixed;inset:0;background:rgba(74,43,54,.35);z-index:10;align-items:flex-end}
 .sheet.open{display:flex} .sheetbox{background:#fff;width:100%;max-width:520px;margin:0 auto;border-radius:26px 26px 0 0;padding:18px;max-height:88vh;overflow:auto}
 .row{display:flex;gap:8px} .row>*{flex:1}
 .small{font-size:13px;color:#9a6b7d} .center{text-align:center;padding:28px 10px;color:#9a6b7d}
 .user{display:flex;justify-content:space-between;align-items:center;padding:12px 2px;border-bottom:1px dashed #ffd9e6}
 label{font-size:13px;font-weight:700;display:block;margin-top:10px}
-.tablink{color:#ff5c8f;font-weight:800;cursor:pointer}
+.tablink{color:#d14f7c;font-weight:800;cursor:pointer}
 .warn{background:#fff1f2;border:1.5px solid #fecdd3;color:#be123c;border-radius:14px;padding:12px;font-size:13px}
 </style>
 <script src="config.js"></script>
@@ -54,19 +62,26 @@ label{font-size:13px;font-weight:700;display:block;margin-top:10px}
 <div class="wrap">
 <div id="auth"></div>
 <div id="app" style="display:none">
-  <div class="hero"><p id="greet">Xin chào 👋</p><h1 id="hello">Hôm nay thật xinh!</h1><p id="dateLine"></p>
-  <div class="ring" id="ring">0%</div><p class="small" id="progressText" style="margin:8px 0 0"></p></div>
+  <div class="hero">
+  <div class="heroTop"><div class="avatar" id="avatar">🌸</div><div><p id="greet">Xin chào 👋</p><h1 id="hello">Hôm nay thật xinh!</h1></div></div>
+  <div class="quote">“<span id="quoteText"></span>”<br><button onclick="pickQuote()">↻ Đổi câu khác</button></div>
+  <p id="dateLine"></p>
+  <div class="weather"><div><div class="temp" id="wxTemp">--°</div><div class="small" id="wxDesc">Đang tải thời tiết…</div></div><div style="flex:1"></div><select id="citySel" onchange="changeCity(this.value)"><option value="Hà Nội">Hà Nội</option><option value="TP.HCM">TP.HCM</option><option value="Đà Nẵng">Đà Nẵng</option><option value="Hải Phòng">Hải Phòng</option><option value="Cần Thơ">Cần Thơ</option><option value="__geo__">📍 Vị trí của tôi</option></select></div>
+  <p class="small" id="wxTip" style="margin-top:8px"></p>
+  <p class="small" id="wxSecond" style="margin-top:4px">TP.HCM: đang tải…</p>
+  <div style="display:flex;gap:12px;align-items:center"><div class="ring" id="ring">0%</div><p class="small" id="progressText" style="margin:0"></p></div></div>
   <div id="views">
     <div id="view-tasks">
       <div class="card"><input id="search" placeholder="Tìm việc… 🔍" oninput="render()"></div>
       <div class="chips" id="chips"></div>
       <div id="taskList"></div>
     </div>
-    <div id="view-timeline" style="display:none"><h2>Timeline bạn bè 💕</h2><p class="small">Chỉ hiện việc của những người bạn đang follow và đã bật chia sẻ timeline.</p><div id="timelineList"></div></div>
+    <div id="view-timeline" style="display:none"><h2>Timeline bạn bè 💕</h2><p class="small">Chỉ hiện việc của những người bạn đang follow và đã bật chia sẻ timeline — bao gồm cả ghi chú của họ. Ghi chú của bạn cũng sẽ hiện ở timeline của bạn bè khi bạn bật chia sẻ.</p><div id="timelineList"></div></div>
     <div id="view-friends" style="display:none"><h2>Bạn bè 👯</h2><div class="card"><input id="friendSearch" placeholder="Tìm theo tên hoặc @username" oninput="renderFriends()"></div><div id="friendList"></div></div>
     <div id="view-profile" style="display:none"><h2>Hồ sơ của mình 🌸</h2>
       <div class="card"><label>Tên hiển thị</label><input id="editName"><label>Username đăng nhập (không đổi, vì tài khoản Supabase gắn với username lúc đăng ký)</label><input id="editUser" disabled>
       <label style="display:flex;gap:8px;align-items:center"><input id="editShare" type="checkbox" style="width:auto;margin:0"> Cho bạn bè xem timeline của mình</label>
+      <p class="small">Khi bật, bạn bè đang follow bạn sẽ thấy cả việc và ghi chú của bạn ở Timeline của họ. Tắt đi là không ai thấy nữa.</p>
       <p style="height:8px"></p><button class="primary" onclick="saveProfile()">Lưu thay đổi</button>
       <p style="height:8px"></p><button class="ghost" style="width:100%" onclick="logout()">Đăng xuất</button>
       <p class="small" id="followStats"></p></div>
@@ -93,6 +108,100 @@ label{font-size:13px;font-weight:700;display:block;margin-top:10px}
 </div></div>
 <script>
 const CATS={"Cá nhân":"#ffd1e3","Công việc":"#c7d8ff","Học tập":"#d8f3dc","Sức khỏe":"#ffe8b3","Mua sắm":"#e4c1f9","Khác":"#e8e8e8"};
+const QUOTES=[
+"Làm xong một việc nhỏ hôm nay còn hơn mơ một việc lớn ngày mai.",
+"Học không cần nhanh, cần đều. Mỗi ngày một chút là đủ.",
+"Việc khó nhất thường chỉ khó ở bước bắt đầu.",
+"Đừng cố làm hết mọi thứ, hãy làm đúng thứ quan trọng trước.",
+"Một trang vở, một dòng ghi chú, rồi mọi thứ sẽ vào guồng.",
+"Tập trung 25 phút, nghỉ 5 phút, rồi lại tiếp tục.",
+"Hôm nay mệt thì làm chậm lại, đừng bỏ hẳn.",
+"Ghi ra là đã làm được một nửa rồi.",
+"Không ai giỏi ngay từ đầu, ai cũng bắt đầu từ lúng túng.",
+"Ôn lại hôm nay, mai sẽ nhẹ hơn rất nhiều.",
+"Làm việc theo danh sách, đừng làm việc theo cảm xúc.",
+"Chậm mà chắc vẫn tới đích.",
+"Đặt điện thoại xuống, làm xong việc rồi hãy cầm lên.",
+"Mỗi việc xong là một lần mình giữ lời với chính mình.",
+"Học để hiểu, không phải để thuộc lòng cho qua.",
+"Việc lớn chia nhỏ ra, tự nhiên sẽ thấy dễ thở.",
+"Bắt đầu từ việc dễ nhất để lấy đà, rồi xử lý việc khó sau.",
+"Hôm nay làm tốt hơn hôm qua một chút là đủ.",
+"Đừng so mình với người khác, so với mình của tuần trước thôi.",
+"Nghỉ ngơi cũng là một phần của làm việc tốt.",
+"Ghi chú rõ ràng, mai mở ra không phải đoán lại.",
+"Deadline không đáng sợ bằng việc cứ trì hoãn nó.",
+"Làm xong rồi sửa, đừng đợi hoàn hảo mới bắt đầu.",
+"Một ngày có 24 giờ, dành 1 giờ cho việc quan trọng nhất trước đã."];
+const CITIES={"Hà Nội":[21.0278,105.8342],"TP.HCM":[10.8231,106.6297],"Đà Nẵng":[16.0544,108.2022],"Hải Phòng":[20.8449,106.6881],"Cần Thơ":[10.0452,105.7469]};
+function pickQuote(){
+  let last=-1; try{last=parseInt(localStorage.getItem("todocute_last_quote")||"-1",10)}catch(e){}
+  let i=Math.floor(Math.random()*QUOTES.length);
+  if(QUOTES.length>1){while(i===last){i=Math.floor(Math.random()*QUOTES.length)}}
+  try{localStorage.setItem("todocute_last_quote",String(i))}catch(e){}
+  const el=document.getElementById("quoteText"); if(el) el.textContent=QUOTES[i];
+}
+function wxDesc(code){
+  if(code===0) return "Trời nắng ☀️";
+  if(code===1) return "Nắng nhẹ, ít mây 🌤️"; if(code===2) return "Nhiều mây ⛅"; if(code===3) return "Trời âm u ☁️";
+  if(code===45||code===48) return "Sương mù 🌫️";
+  if(code>=51&&code<=57) return "Mưa phùn 🌧️";
+  if(code>=61&&code<=67) return "Trời mưa 🌧️";
+  if(code>=71&&code<=77) return "Có tuyết ❄️";
+  if(code>=80&&code<=82) return "Mưa rào 🌧️";
+  if(code>=95) return "Có dông ⛈️";
+  return "Thời tiết hôm nay";
+}
+async function loadWeather(){
+  const tempEl=document.getElementById("wxTemp"), descEl=document.getElementById("wxDesc"), tipEl=document.getElementById("wxTip");
+  if(!tempEl) return;
+  let city="Hà Nội"; try{city=localStorage.getItem("todocute_city")||"Hà Nội"}catch(e){}
+  let coords=CITIES[city], label=city;
+  try{const g=localStorage.getItem("todocute_geo"); if(city==="__geo__"&&g){coords=JSON.parse(g); label="Vị trí của tôi"}}catch(e){}
+  if(!coords){coords=CITIES["Hà Nội"]; label="Hà Nội"}
+  const sel=document.getElementById("citySel"); if(sel) sel.value=city;
+  try{
+    const url="https://api.open-meteo.com/v1/forecast?latitude="+coords[0]+"&longitude="+coords[1]+"&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FBangkok&forecast_days=1";
+    const res=await fetch(url); if(!res.ok) throw new Error("weather");
+    const d=await res.json();
+    const cur=d.current, day=d.daily||{};
+    const t=Math.round(cur.temperature_2m), mx=day.temperature_2m_max?Math.round(day.temperature_2m_max[0]):"", mn=day.temperature_2m_min?Math.round(day.temperature_2m_min[0]):"", prob=day.precipitation_probability_max?day.precipitation_probability_max[0]:null;
+    tempEl.textContent=t+"°";
+    descEl.textContent=label+" • "+wxDesc(cur.weather_code)+(mx!==""?" • Cao "+mx+"° / thấp "+mn+"°":"")+" • Ẩm "+cur.relative_humidity_2m+"% • Gió "+Math.round(cur.wind_speed_10m)+" km/h"+(prob!==null?" • Khả năng mưa "+prob+"%":"");
+    const rainy=(cur.weather_code>=51&&cur.weather_code<=67)||(cur.weather_code>=80&&cur.weather_code<=82)||cur.weather_code>=95||(prob!==null&&prob>=50);
+    tipEl.textContent=rainy?"Nhớ mang ô nếu ra ngoài nhé ☔":(cur.weather_code===0?"Trời đẹp, tranh thủ làm việc gì cần ra ngoài trước nhé.":"Cứ làm việc trong nhà cho thoải mái, trời không đẹp lắm đâu.");
+    // Luôn hiện thêm TP.HCM song song (nếu thành phố chính đã là TP.HCM thì hiện Hà Nội thay cho khỏi trùng).
+    (async function(){
+      const secondEl=document.getElementById("wxSecond"); if(!secondEl) return;
+      const secondName=(label==="TP.HCM")?"Hà Nội":"TP.HCM";
+      const sc=CITIES[secondName];
+      try{
+        const r2=await fetch("https://api.open-meteo.com/v1/forecast?latitude="+sc[0]+"&longitude="+sc[1]+"&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FBangkok&forecast_days=1");
+        if(!r2.ok) throw new Error("weather2");
+        const d2=await r2.json(), c2=d2.current, dy2=d2.daily||{};
+        secondEl.textContent=secondName+": "+Math.round(c2.temperature_2m)+"° • "+wxDesc(c2.weather_code)+(dy2.temperature_2m_max?" • Cao "+Math.round(dy2.temperature_2m_max[0])+"° / thấp "+Math.round(dy2.temperature_2m_min[0])+"°":"")+(dy2.precipitation_probability_max?" • Khả năng mưa "+dy2.precipitation_probability_max[0]+"%":"");
+      }catch(e){ secondEl.textContent=secondName+": chưa tải được."; }
+    })();
+  }catch(e){
+    descEl.textContent=label+" • Chưa tải được thời tiết, bấm vào tên thành phố để thử lại nhé.";
+    tipEl.textContent="";
+  }
+}
+function changeCity(v){
+  if(v==="__geo__"){
+    if(!navigator.geolocation){alert("Máy này không hỗ trợ lấy vị trí. Đang hiện Hà Nội nhé."); document.getElementById("citySel").value="Hà Nội"; return}
+    navigator.geolocation.getCurrentPosition(function(pos){
+      try{localStorage.setItem("todocute_geo",JSON.stringify([pos.coords.latitude,pos.coords.longitude])); localStorage.setItem("todocute_city","__geo__")}catch(e){}
+      loadWeather();
+    },function(){
+      alert("Chưa cấp quyền vị trí nên chưa lấy được thời tiết ở chỗ bạn. Đang hiện Hà Nội nhé.");
+      document.getElementById("citySel").value="Hà Nội"; loadWeather();
+    });
+    return;
+  }
+  try{localStorage.setItem("todocute_city",v)}catch(e){}
+  loadWeather();
+}
 const CFG = window.SUPABASE_CONFIG || {};
 const CONFIGURED = CFG.SUPABASE_URL && CFG.SUPABASE_URL.indexOf("YOUR-PROJECT") === -1 && CFG.SUPABASE_ANON_KEY && CFG.SUPABASE_ANON_KEY.indexOf("YOUR-ANON") === -1;
 const sb = CONFIGURED ? supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY) : null;
@@ -166,7 +275,10 @@ async function boot(user){
   await loadAll();
   document.getElementById("auth").innerHTML="";document.getElementById("app").style.display="block";document.getElementById("nav").style.display="flex";document.getElementById("fab").style.display="block";
   const h=new Date().getHours();
-  document.getElementById("greet").textContent=(h<11?"Buổi sáng vui vẻ ☀️":h<18?"Buổi chiều nhẹ nhàng 🌤️":"Buổi tối thư giãn 🌙")+" • "+esc(meProfile.display_name);
+  document.getElementById("greet").textContent=(h<11?"Buổi sáng vui vẻ ☀️":h<18?"Buổi chiều nhẹ nhàng 🌤️":"Buổi tối thư giãn 🌙");
+  document.getElementById("hello").textContent=meProfile.display_name;
+  document.getElementById("avatar").textContent=(meProfile.display_name||"?").trim().charAt(0).toUpperCase();
+  pickQuote(); loadWeather();
   document.getElementById("dateLine").textContent=new Date().toLocaleDateString("vi-VN",{weekday:"long",day:"numeric",month:"numeric",year:"numeric"});
   showView("tasks",document.querySelector('[data-v="tasks"]'));render();
 }
@@ -180,7 +292,7 @@ function render(){
   const q=(document.getElementById("search").value||"").toLowerCase();
   let tasks=myTasks.filter(t=>(curCat==="Tất cả"||t.category===curCat) && (!q||t.title.toLowerCase().includes(q)));
   const today=tasks.filter(t=>isToday(t.due_at));const pct=today.length?Math.round(today.filter(t=>t.done).length/today.length*100):(tasks.length?Math.round(tasks.filter(t=>t.done).length/tasks.length*100):0);
-  document.getElementById("ring").textContent=pct+"%";document.getElementById("ring").style.background=`conic-gradient(#ff7aa2 ${pct*3.6}deg,#ffe3ec 0deg)`;document.getElementById("ring").style.color="#ff5c8f";
+  document.getElementById("ring").textContent=pct+"%";document.getElementById("ring").style.background=`conic-gradient(#e76f93 ${pct*3.6}deg,#ffe3ec 0deg)`;document.getElementById("ring").style.color="#ff5c8f";
   document.getElementById("progressText").textContent=today.length?`Hôm nay: ${today.filter(t=>t.done).length}/${today.length} việc đã xong`:"Hôm nay chưa có việc hẹn, cứ thong thả nhé!";
   const now=new Date();
   const groups=[["⚠️ Quá hạn",tasks.filter(t=>!t.done&&t.due_at&&new Date(t.due_at)<now)],["🌞 Hôm nay",tasks.filter(t=>!t.done&&isToday(t.due_at))],["🔜 Sắp tới",tasks.filter(t=>!t.done&&t.due_at&&!isToday(t.due_at)&&new Date(t.due_at)>=now)],["📌 Chưa có ngày hẹn",tasks.filter(t=>!t.done&&!t.due_at)],["✅ Đã xong",tasks.filter(t=>t.done)]];
@@ -191,7 +303,7 @@ function taskRow(t){
   const over=!t.done&&t.due_at&&new Date(t.due_at)<new Date();
   return `<div class="task"><div class="circle ${t.done?"done":""}" onclick="toggleTask('${t.id}')">${t.done?"✓":""}</div><div style="flex:1" onclick="editTask('${t.id}')">
   <b class="${t.done?"done":""}">${esc(t.title)}</b><div class="meta"><span class="tag" style="background:${CATS[t.category]||"#e8e8e8"}">${esc(t.category)}</span>${esc(t.priority)}${t.due_at?" • ⏰ "+fmt(t.due_at):""}</div>
-  ${over?`<div class="over">Đã quá hạn!</div>`:""}${t.note?`<div class="meta">📝 ${esc(t.note)}</div>`:""}</div>
+  ${over?`<div class="over">Đã quá hạn!</div>`:""}${t.note?`<div class="note">📝 ${esc(t.note)}</div>`:""}</div>
   <button class="ghost" onclick="delTask('${t.id}')">Xoá</button></div>`;
 }
 async function toggleTask(id){const t=myTasks.find(x=>x.id===id);if(!t)return;const res=await sb.from("tasks").update({done:!t.done}).eq("id",id);if(!res.error){t.done=!t.done;render();}}
@@ -225,7 +337,7 @@ async function renderTimeline(){
   if(!myFollows.length){el.innerHTML=`<div class="center">Chưa có gì để xem.<br>Follow một người bạn và nhờ họ bật chia sẻ timeline nhé!</div>`;return}
   const res=await sb.from("tasks").select("*").in("owner_id",myFollows).order("due_at",{ascending:true});
   const list=(res.data||[]).filter(t=>{const p=profileById(t.owner_id);return p&&p.share_timeline});
-  el.innerHTML=list.map(t=>{const u=profileById(t.owner_id);return `<div class="card"><b>${esc(t.title)}</b><div class="meta">👤 ${esc(u?u.display_name:t.owner_id)} • <span class="tag" style="background:${CATS[t.category]||"#e8e8e8"}">${esc(t.category)}</span>${t.done?"✅ Đã xong":"⏳ Đang làm"}${t.due_at?" • "+fmt(t.due_at):""}</div></div>`}).join("")||`<div class="center">Chưa có gì để xem.<br>Follow một người bạn và nhờ họ bật chia sẻ timeline nhé!</div>`;
+  el.innerHTML=list.map(t=>{const u=profileById(t.owner_id);return `<div class="card"><b>${esc(t.title)}</b><div class="meta">👤 ${esc(u?u.display_name:t.owner_id)} • <span class="tag" style="background:${CATS[t.category]||"#e8e8e8"}">${esc(t.category)}</span>${t.done?"✅ Đã xong":"⏳ Đang làm"}${t.due_at?" • "+fmt(t.due_at):""}</div>${t.note?`<div class="note">📝 ${esc(t.note)}</div>`:""}</div>`}).join("")||`<div class="center">Chưa có gì để xem.<br>Follow một người bạn và nhờ họ bật chia sẻ timeline nhé!</div>`;
 }
 function renderProfile(){document.getElementById("editName").value=meProfile.display_name;document.getElementById("editUser").value=meProfile.username;document.getElementById("editShare").checked=!!meProfile.share_timeline;
   const f=myFollows.length;document.getElementById("followStats").textContent=`Đang follow ${f} người`}
