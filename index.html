@@ -75,7 +75,7 @@ label{font-size:13px;font-weight:700;display:block;margin-top:10px}
   <div style="display:flex;gap:12px;align-items:center"><div class="ring" id="ring">0%</div><p class="small" id="progressText" style="margin:0"></p></div></div>
   <div id="views">
     <div id="view-tasks">
-      <div class="card"><input id="search" placeholder="Tìm việc… 🔍" oninput="render()"></div>
+      <div class="card"><input id="search" placeholder="Tìm việc…" oninput="render()"></div>
       <div class="chips" id="chips"></div>
       <div id="taskList"></div>
     </div>
@@ -95,7 +95,7 @@ label{font-size:13px;font-weight:700;display:block;margin-top:10px}
 </div>
 <button class="fab" id="fab" onclick="openSheet()" style="display:none">+</button>
 <div class="nav" id="nav" style="display:none">
-  <button data-v="tasks" class="on" onclick="showView('tasks',this)">📋<br>Việc</button>
+  <button data-v="tasks" class="on" onclick="showView('tasks',this)">📋<br>Công việc</button>
   <button data-v="timeline" onclick="showView('timeline',this)">💕<br>Timeline</button>
   <button data-v="friends" onclick="showView('friends',this)">👯<br>Bạn bè</button>
   <button data-v="profile" onclick="showView('profile',this)">🌸<br>Hồ sơ</button>
@@ -218,12 +218,12 @@ function toLocalInput(iso){if(!iso)return "";const d=new Date(iso);const p=n=>St
 function profileById(id){return allProfiles.find(p=>p.id===id)}
 function showAuth(){
   document.getElementById("app").style.display="none";document.getElementById("nav").style.display="none";document.getElementById("fab").style.display="none";
-  document.getElementById("auth").innerHTML=`<div class="hero"><h1>To Do Cute 💕</h1><p>Đăng nhập để bắt đầu ngày mới xinh xắn nhé! Tài khoản dùng chung qua mọi máy.</p></div>
+  document.getElementById("auth").innerHTML=`<div class="hero"><h1>To Do List 💕</h1><p>Đăng nhập để bắt đầu ngày mới xinh xắn nhé!</p></div>
   ${CONFIGURED ? "" : `<div class="card"><div class="warn">⚠️ Chưa cấu hình Supabase: mở file <b>config.js</b>, điền SUPABASE_URL và SUPABASE_ANON_KEY, rồi deploy lại. Xem HUONG-DAN-SETUP.md.</div></div>`}
   <div class="card"><h2 style="margin-top:0" id="authTitle">Đăng nhập</h2>
   <label>Username (chữ thường, số, gạch dưới, 3–20 ký tự)</label><input id="aUser" placeholder="vd: lecute">
   <label>Tên hiển thị (khi đăng ký)</label><input id="aName" placeholder="Tên của bạn">
-  <label>Mật khẩu (ít nhất 6 ký tự)</label><input id="aPass" type="password" placeholder="••••••">
+  <label>Mật khẩu (ít nhất 6 ký tự)</label><input id="aPass" type="password" placeholder="Nhập mật khẩu">
   <p style="height:6px"></p><button class="primary" onclick="doAuth()">Vào app</button>
   <p class="center" style="padding:14px 0 2px"><span id="authSwitch" class="tablink" onclick="toggleAuth()">Chưa có tài khoản? Đăng ký ngay →</span></p>
   <p class="small center" id="authMsg"></p></div>`;
