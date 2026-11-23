@@ -601,21 +601,33 @@ async function sendReport(){
   const r=reportPayload();
   if(!r.title&&!r.body){msg.textContent="Nhập tiêu đề hoặc nội dung trước khi gửi nhé.";return}
   btn.disabled=true; btn.textContent="Đang gửi…"; msg.textContent="";
+  // 1) Lưu vào bảng reports riêng trên Supabase (chỉ chủ app xem được ở Dashboard, không hiện trong app)
+  let saved=false;
   try{
+    const res=await sb.from("reports").insert({reporter_id:meUser.id,reporter_name:meProfile.display_name,reporter_username:meProfile.username,type:r.type,title:r.title,body:r.body});
+    saved=!res.error;
+    if(res.error)console.error("reports insert lỗi:",res.error);
+  }catch(e){console.error(e)}
+  // 2) Thử gửi thêm về Gmail qua FormSubmit, chờ tối đa 8 giây (treo là bỏ qua, không kẹt nút nữa)
+  let mailed=false;
+  try{
+    const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),8000);
     const res=await fetch("https://formsubmit.co/ajax/"+REPORT_EMAIL,{
-      method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
-      body:JSON.stringify({
-        _subject:"[To Do Cute] "+r.type+": "+(r.title||"(chưa có tiêu đề)"),
-        _template:"table",
-        "Loai":r.type,"Tieu de":r.title,"Noi dung":r.body,"Nguoi gui":r.from,
-      })
+      method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},signal:ctrl.signal,
+      body:JSON.stringify({_subject:"[To Do Cute] "+r.type+": "+(r.title||"(chưa có tiêu đề)"),_template:"table","Loai":r.type,"Tieu de":r.title,"Noi dung":r.body,"Nguoi gui":r.from})
     });
+    clearTimeout(to);
     const data=await res.json().catch(()=>({}));
-    if(!res.ok||String(data.success)!=="true")throw new Error("formsubmit");
-    msg.textContent="✅ Đã gửi rồi! Cảm ơn bạn, chủ app sẽ nhận được trong Gmail riêng. (Nếu đây là lần gửi đầu tiên, chủ app cần bấm nút Activate trong email xác nhận của FormSubmit thì các lần sau mới tới thẳng.)";
+    mailed=res.ok&&String(data.success)==="true";
+  }catch(e){/* FormSubmit treo/chậm thì bỏ qua, báo cáo đã được lưu ở bước 1 */}
+  if(saved){
+    msg.textContent="✅ Đã gửi rồi! Báo cáo đã được lưu riêng cho chủ app xem (không hiện công khai trong app)"+(mailed?" và đã gửi thêm về Gmail của chủ app.":".");
     document.getElementById("repTitle").value=""; document.getElementById("repBody").value="";
-  }catch(e){
-    msg.textContent="Gửi tự động chưa được (có thể do mạng hoặc dịch vụ gửi chưa kích hoạt). Đang mở ứng dụng email để bạn gửi trực tiếp…";
+  }else if(mailed){
+    msg.textContent="✅ Đã gửi về Gmail của chủ app rồi! Cảm ơn bạn.";
+    document.getElementById("repTitle").value=""; document.getElementById("repBody").value="";
+  }else{
+    msg.textContent="Cả 2 cách gửi tự động đều chưa được (mạng hoặc database chưa có bảng reports). Đang mở ứng dụng email để bạn gửi trực tiếp…";
     sendReportByMail();
   }
   btn.disabled=false; btn.textContent="Gửi báo cáo";

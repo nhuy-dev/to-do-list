@@ -138,3 +138,20 @@ drop policy if exists "push_update_own" on public.push_subscriptions;
 create policy "push_update_own" on public.push_subscriptions for update using (user_id = auth.uid()) with check (user_id = auth.uid());
 drop policy if exists "push_delete_own" on public.push_subscriptions;
 create policy "push_delete_own" on public.push_subscriptions for delete using (user_id = auth.uid());
+
+-- 10. Báo lỗi / góp ý: user chỉ ĐƯỢC GHI, không có quyền đọc qua app.
+-- Chủ app xem báo cáo trong Supabase Dashboard > Table Editor > reports.
+create table if not exists public.reports (
+  id uuid primary key default gen_random_uuid(),
+  reporter_id uuid not null references public.profiles (id) on delete cascade,
+  reporter_name text not null default '',
+  reporter_username text not null default '',
+  type text not null default 'Báo lỗi',
+  title text not null default '',
+  body text not null default '',
+  created_at timestamptz not null default now()
+);
+alter table public.reports enable row level security;
+drop policy if exists "reports_insert_own" on public.reports;
+create policy "reports_insert_own" on public.reports for insert with check (reporter_id = auth.uid());
+-- Cố ý KHÔNG tạo policy select/update/delete: không ai đọc/sửa được reports qua app.
