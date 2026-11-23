@@ -1,6 +1,7 @@
 // Service worker cho bản Supabase: CHỈ cache file giao diện cùng origin.
 // Tuyệt đối không cache API Supabase (supabase.co), vì dữ liệu tài khoản/việc/follow phải luôn mới.
-const CACHE = "todocute-supabase-v3";
+// v4: HTML dùng network-first để bản deploy mới luôn được tải về, không bị kẹt bản cũ trong cache.
+const CACHE = "todocute-supabase-v4";
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
@@ -12,6 +13,18 @@ self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
   const url = new URL(e.request.url);
   if (url.origin !== self.location.origin) return; // Supabase và CDN: để mạng xử lý, không cache
+  const isPage = e.request.mode === "navigate" || url.pathname.endsWith("/") || url.pathname.endsWith("/index.html") || url.pathname.endsWith(".html");
+  if (isPage) {
+    // Network-first cho trang HTML: có mạng là lấy bản mới nhất, mất mạng mới dùng cache.
+    e.respondWith(
+      fetch(e.request).then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put("./index.html", copy));
+        return res;
+      }).catch(() => caches.match("./index.html"))
+    );
+    return;
+  }
   e.respondWith(
     caches.match(e.request, { ignoreSearch: true }).then((hit) => hit || fetch(e.request).then((res) => {
       const copy = res.clone();
