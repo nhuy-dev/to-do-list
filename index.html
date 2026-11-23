@@ -608,20 +608,17 @@ async function sendReport(){
     saved=!res.error;
     if(res.error)console.error("reports insert lỗi:",res.error);
   }catch(e){console.error(e)}
-  // 2) Thử gửi thêm về Gmail qua FormSubmit, chờ tối đa 8 giây (treo là bỏ qua, không kẹt nút nữa)
+  // 2) Gửi email về Gmail chủ app qua Edge Function send-report-email (Resend), chờ tối đa 10 giây
   let mailed=false;
   try{
-    const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),8000);
-    const res=await fetch("https://formsubmit.co/ajax/"+REPORT_EMAIL,{
-      method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},signal:ctrl.signal,
-      body:JSON.stringify({_subject:"[To Do Cute] "+r.type+": "+(r.title||"(chưa có tiêu đề)"),_template:"table","Loai":r.type,"Tieu de":r.title,"Noi dung":r.body,"Nguoi gui":r.from})
-    });
-    clearTimeout(to);
-    const data=await res.json().catch(()=>({}));
-    mailed=res.ok&&String(data.success)==="true";
-  }catch(e){/* FormSubmit treo/chậm thì bỏ qua, báo cáo đã được lưu ở bước 1 */}
+    const inv=sb.functions.invoke("send-report-email",{body:{type:r.type,title:r.title,body:r.body,reporter_name:meProfile.display_name,reporter_username:meProfile.username}});
+    const timeout=new Promise(res=>setTimeout(()=>res(null),10000));
+    const res=await Promise.race([inv,timeout]);
+    mailed=!!(res&&!res.error);
+    if(res&&res.error)console.error("send-report-email lỗi:",res.error);
+  }catch(e){console.error(e)}
   if(saved){
-    msg.textContent="✅ Đã gửi rồi! Báo cáo đã được lưu riêng cho chủ app xem (không hiện công khai trong app)"+(mailed?" và đã gửi thêm về Gmail của chủ app.":".");
+    msg.textContent="✅ Đã gửi rồi! Báo cáo đã được lưu riêng cho chủ app xem (không hiện công khai trong app)"+(mailed?" và đã gửi vào Gmail của chủ app.":".");
     document.getElementById("repTitle").value=""; document.getElementById("repBody").value="";
   }else if(mailed){
     msg.textContent="✅ Đã gửi về Gmail của chủ app rồi! Cảm ơn bạn.";
