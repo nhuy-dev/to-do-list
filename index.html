@@ -94,6 +94,52 @@ h3{font-size:13.5px}
   .hero{padding:22px}
   .task b{font-size:15.5px}
 }
+.segTabs{display:flex;gap:8px;margin:10px 0 4px}
+.seg{flex:1;background:#fff;border:1.5px solid #ecd3d8;color:#9a6b7d;padding:10px}
+.seg.on{color:#fff;border-color:transparent;background:linear-gradient(90deg,#ff5c8f,#ff9f43,#f6e05e,#2ed573,#1e90ff,#a55eea,#ff5c8f);background-size:300% 100%;animation:rgbSlide 8s linear infinite;box-shadow:0 4px 14px rgba(165,94,234,.35)}
+/* ===== Cyber RGB layer ===== */
+@keyframes rgbSlide{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+@keyframes rgbHue{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
+@keyframes rgbBorder{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+body{background-color:#0f0c1d;background-image:radial-gradient(600px 300px at 15% -5%,rgba(255,92,143,.28),transparent 60%),radial-gradient(700px 340px at 90% 0%,rgba(30,144,255,.25),transparent 60%),radial-gradient(560px 300px at 50% 110%,rgba(46,213,115,.18),transparent 60%),linear-gradient(rgba(120,120,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(120,120,255,.06) 1px,transparent 1px);background-size:auto,auto,auto,26px 26px,26px 26px;color:#ece9f7}
+.hero,.card,.sheetbox{background:rgba(24,20,44,.86);border:1.5px solid rgba(140,120,255,.35);box-shadow:0 0 0 1px rgba(0,229,255,.08),0 8px 28px rgba(0,0,0,.45),0 0 22px rgba(120,80,255,.15);backdrop-filter:blur(8px);color:#ece9f7}
+.hero{position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,#ff0055,#ff9f43,#f6e05e,#2ed573,#00e5ff,#a55eea,#ff0055);background-size:300% 100%;animation:rgbBorder 6s linear infinite}
+.hero h1{background:linear-gradient(90deg,#ff5c8f,#ffb84d,#2ed573,#00e5ff,#a55eea,#ff5c8f);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:rgbSlide 10s linear infinite}
+.hero p,.small{color:#b9b3d9}
+.quote{background:rgba(255,255,255,.06);color:#f2efff;border-left-color:#00e5ff}
+.quote button{color:#00e5ff}
+.weather{background:rgba(46,213,115,.10);border-color:rgba(46,213,115,.35)}
+.weather .temp{color:#7dffb0}
+.weather select{background:rgba(24,20,44,.9);color:#ece9f7;border-color:rgba(46,213,115,.35)}
+.ring{background:rgba(255,255,255,.06);border-color:rgba(140,120,255,.4);color:#ff7aa2}
+.note{background:rgba(255,184,77,.10);border-color:rgba(255,184,77,.4);color:#e8ddc8}
+input,select,textarea{background:rgba(15,12,29,.85);border-color:rgba(140,120,255,.35);color:#ece9f7}
+input::placeholder,textarea::placeholder{color:#8f89b3}
+label{color:#cfc9ee}
+.primary{background:linear-gradient(90deg,#ff5c8f,#a55eea,#1e90ff,#ff5c8f);background-size:300% 100%;animation:rgbSlide 8s linear infinite;box-shadow:0 6px 20px rgba(165,94,234,.45);color:#fff}
+.ghost{background:rgba(0,229,255,.12);color:#7deeff}
+.chip{background:rgba(24,20,44,.85);border-color:rgba(140,120,255,.4);color:#cfc9ee}
+.chip.on{background:linear-gradient(90deg,#ff5c8f,#a55eea,#1e90ff);color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(120,80,255,.4)}
+.task{border-bottom-color:rgba(140,120,255,.25)}
+.task b{color:#f2efff}.task b.done{color:#8f89b3}
+.meta{color:#a49dc9}
+.circle{border-color:#a55eea;background:rgba(255,255,255,.05);color:#fff}
+.circle.done{background:linear-gradient(135deg,#2ed573,#00e5ff);border-color:transparent;box-shadow:0 0 12px rgba(0,229,255,.5)}
+.fab{background:linear-gradient(135deg,#ff0055,#a55eea,#00e5ff);animation:rgbHue 10s linear infinite;box-shadow:0 10px 26px rgba(165,94,234,.6)}
+.nav{background:rgba(13,10,28,.92);border-top:1px solid rgba(140,120,255,.35)}
+.nav button{color:#8f89b3}.nav button.on{color:#00e5ff;text-shadow:0 0 10px rgba(0,229,255,.7)}
+.avatar,.miniAvatar,.avatarBig{border-color:rgba(0,229,255,.5);box-shadow:0 0 12px rgba(0,229,255,.25)}
+.reminderBanner{background:rgba(255,159,67,.12);border-color:rgba(255,159,67,.55);color:#ffd9a8}
+.remindBox{background:rgba(255,255,255,.05);border-color:rgba(140,120,255,.4)}
+.warn{background:rgba(255,0,85,.12);border-color:rgba(255,0,85,.5);color:#ffb3c6}
+.pick{background:rgba(255,255,255,.06);border-color:rgba(140,120,255,.4)}
+.pick.on{border-color:#00e5ff;background:rgba(0,229,255,.15)}
+.center{color:#a49dc9}
+h2{color:#f2efff} h3{color:#00e5ff}
+.tablink{color:#00e5ff}
+.user{border-bottom-color:rgba(140,120,255,.25)}
+@media (prefers-reduced-motion:reduce){.seg.on,.hero::before,.hero h1,.primary,.fab{animation:none}}
 @media (max-width:380px){
   .wrap{padding:14px 10px 8px}
   .hero{padding:14px}
@@ -124,7 +170,11 @@ h3{font-size:13.5px}
       <div class="chips" id="chips"></div>
       <div id="taskList"></div>
     </div>
-    <div id="view-history" style="display:none"><h2>Lịch sử việc đã xong ✅</h2><p class="small">Những việc đã hoàn thành nằm ở đây, không nằm ở mục Công việc nữa. Bấm vào vòng tròn để làm lại, hoặc dọn dẹp khi không cần xem nữa.</p><div id="historyList"></div></div>
+    <div id="view-history" style="display:none"><h2>Lịch sử việc đã xong ✅</h2>
+    <div class="segTabs"><button id="htab-mine" class="seg on" onclick="setHistoryTab('mine')">📋 Của tôi</button><button id="htab-friends" class="seg" onclick="setHistoryTab('friends')">👯 Của bạn bè</button></div>
+    <div id="historyMine"><p class="small">Việc đã hoàn thành của bạn. Bấm vào vòng tròn để làm lại, hoặc dọn dẹp khi không cần xem nữa.</p><div id="historyList"></div></div>
+    <div id="historyFriends" style="display:none"><p class="small">Việc đã hoàn thành của những người bạn đang follow và có bật chia sẻ timeline. Chỉ xem, không sửa được việc của bạn bè.</p><div id="friendHistoryList"><div class="center">Đang tải…</div></div></div>
+    </div>
     <div id="view-timeline" style="display:none"><h2>Timeline bạn bè 💕</h2><p class="small">Chỉ hiện việc của những người bạn đang follow và đã bật chia sẻ timeline — bao gồm cả ghi chú của họ. Ghi chú của bạn cũng sẽ hiện ở timeline của bạn bè khi bạn bật chia sẻ.</p><div id="timelineList"></div></div>
     <div id="view-friends" style="display:none"><h2>Bạn bè 👯</h2><div class="card"><input id="friendSearch" placeholder="Tìm theo @username — gõ ít nhất 2 ký tự" oninput="onFriendSearch()"><p class="small">App không hiện sẵn danh sách mọi người. Chỉ khi bạn tìm đúng username/tên thì kết quả mới hiện ra.</p></div><div id="friendResults"></div><h3>Đang follow</h3><div id="friendList"></div></div>
     <div id="view-profile" style="display:none"><h2>Hồ sơ của mình 🌸</h2>
@@ -373,7 +423,7 @@ async function boot(user){
 async function logout(){if(sb) await sb.auth.signOut();meUser=null;meProfile=null;showAuth()}
 function showView(v,btn){view=v;document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("on"));if(btn)btn.classList.add("on");
   ["tasks","history","timeline","friends","profile"].forEach(x=>document.getElementById("view-"+x).style.display=x===v?"block":"none");
-  if(v==="friends")renderFriends(); if(v==="timeline")renderTimeline(); if(v==="profile")renderProfile(); if(v==="history")renderHistory();}
+  if(v==="friends")renderFriends(); if(v==="timeline")renderTimeline(); if(v==="profile")renderProfile(); if(v==="history"){if(historyTab==="friends")renderFriendHistory();else renderHistory()}}
 function render(){
   if(!meProfile)return;
   document.getElementById("chips").innerHTML=["Tất cả",...Object.keys(CATS)].map(c=>`<button class="chip ${curCat===c?"on":""}" onclick="curCat='${c}';render()">${c}</button>`).join("");
@@ -385,6 +435,17 @@ function render(){
   const now=new Date();
   const groups=[["⚠️ Quá hạn",tasks.filter(t=>!t.done&&t.due_at&&new Date(t.due_at)<now)],["🌞 Hôm nay",tasks.filter(t=>!t.done&&isToday(t.due_at))],["🔜 Sắp tới",tasks.filter(t=>!t.done&&t.due_at&&!isToday(t.due_at)&&new Date(t.due_at)>=now)],["📌 Chưa có ngày hẹn",tasks.filter(t=>!t.done&&!t.due_at)]];
   document.getElementById("taskList").innerHTML=groups.map(([title,arr])=>arr.length?`<h2>${title} (${arr.length})</h2>`+arr.map(taskRow).join(""):"").join("")||`<div class="center">Chưa có việc chưa xong nào.<br>Bấm nút + để thêm việc, việc đã xong xem ở mục Lịch sử nhé! 🌸</div>`;
+}
+let historyTab="mine";
+function setHistoryTab(t){historyTab=t;document.getElementById("htab-mine").classList.toggle("on",t==="mine");document.getElementById("htab-friends").classList.toggle("on",t==="friends");document.getElementById("historyMine").style.display=t==="mine"?"block":"none";document.getElementById("historyFriends").style.display=t==="friends"?"block":"none";if(t==="friends")renderFriendHistory();else renderHistory()}
+async function renderFriendHistory(){
+  const el=document.getElementById("friendHistoryList"); if(!el)return;
+  if(!myFollows.length){el.innerHTML=`<div class="center">Bạn chưa follow ai.<br>Vào mục Bạn bè, tìm @username để follow rồi quay lại xem lịch sử của họ nhé!</div>`;return}
+  el.innerHTML=`<div class="center">Đang tải lịch sử của bạn bè…</div>`;
+  let res=await sb.from("tasks").select("*").in("owner_id",myFollows).eq("done",true).order("completed_at",{ascending:false});
+  if(res.error){res=await sb.from("tasks").select("*").in("owner_id",myFollows).eq("done",true).order("created_at",{ascending:false})}
+  const list=(res.data||[]).filter(t=>{const pr=profileById(t.owner_id);return pr&&pr.share_timeline});
+  el.innerHTML=list.map(t=>{const u=profileById(t.owner_id);return `<div class="card"><div style="display:flex;gap:10px;align-items:center"><div class="miniAvatar" data-avatar-for="${t.owner_id}" style="${u?avatarStyle(u):""}">${u?avatarInner(u):"?"}</div><div style="flex:1"><b class="done">${esc(t.title)}</b><div class="meta">👤 ${esc(u?u.display_name:t.owner_id)} • <span class="tag" style="background:${CATS[t.category]||"#e8e8e8"}">${esc(t.category)}</span>${esc(t.priority)}${t.due_at?" • ⏰ "+fmt(t.due_at):""}${t.completed_at?" • ✅ Xong "+fmt(t.completed_at):""}</div></div></div>${t.note?`<div class="note">📝 ${esc(t.note)}</div>`:""}</div>`}).join("")||`<div class="center">Chưa có việc nào đã xong để xem.<br>Bạn bè của bạn chưa hoàn thành việc nào, hoặc họ chưa bật chia sẻ timeline.</div>`;
 }
 function renderHistory(){
   const el=document.getElementById("historyList"); if(!el)return;
