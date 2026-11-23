@@ -9,6 +9,9 @@ create table if not exists public.profiles (
   username text not null unique,
   display_name text not null,
   share_timeline boolean not null default true,
+  avatar_emoji text,
+  avatar_color text,
+  avatar_image text,
   created_at timestamptz not null default now()
 );
 
@@ -22,6 +25,8 @@ create table if not exists public.tasks (
   due_at timestamptz,
   note text not null default '',
   done boolean not null default false,
+  remind_minutes integer,
+  completed_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -102,3 +107,11 @@ create policy "follows_insert_own" on public.follows
 drop policy if exists "follows_delete_own" on public.follows;
 create policy "follows_delete_own" on public.follows
   for delete using (follower_id = auth.uid());
+
+-- 8. Migration cho database ĐÃ tạo từ trước (chạy lại file này là đủ, không mất dữ liệu)
+-- Nhắc hẹn tuỳ chỉnh theo phút, thời gian hoàn thành, và tuỳ chỉnh avatar.
+alter table public.profiles add column if not exists avatar_emoji text;
+alter table public.profiles add column if not exists avatar_color text;
+alter table public.profiles add column if not exists avatar_image text;
+alter table public.tasks add column if not exists remind_minutes integer;
+alter table public.tasks add column if not exists completed_at timestamptz;

@@ -57,6 +57,19 @@ h2{font-size:17px;margin:18px 0 4px} h3{font-size:14px;color:#c94f7c;margin:14px
 label{font-size:13px;font-weight:700;display:block;margin-top:10px}
 .tablink{color:#d14f7c;font-weight:800;cursor:pointer}
 .warn{background:#fff1f2;border:1.5px solid #fecdd3;color:#be123c;border-radius:14px;padding:12px;font-size:13px}
+.avatar{overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.miniAvatar{width:38px;height:38px;min-width:38px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:17px;border:1.5px solid #f2c2cd;overflow:hidden;background:#ffe3ec;color:#c94f7c}
+.miniAvatar img{width:100%;height:100%;object-fit:cover}
+.reminderBanner{display:none;background:#fff7ed;border:1.5px solid #fdba74;color:#9a3412;border-radius:16px;padding:12px;margin-top:14px;font-size:14px;line-height:1.5}
+.reminderBanner.show{display:block}
+.avatarBig{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;font-size:36px;font-weight:800;margin:8px auto;border:2px solid #f2c2cd;overflow:hidden;background:#ffe3ec;color:#c94f7c}
+.avatarBig img{width:100%;height:100%;object-fit:cover}
+.pickGrid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.pick{width:42px;height:42px;border-radius:50%;border:2px solid #ecd3d8;background:#fff;font-size:20px;display:grid;place-items:center;padding:0}
+.pick.on{border-color:#e76f93;background:#ffeef2}
+.swatch{width:34px;height:34px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px #ecd3d8;padding:0}
+.swatch.on{box-shadow:0 0 0 2.5px #e76f93}
+.nav button{font-size:11.5px;padding:6px 4px}
 </style>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -73,15 +86,25 @@ label{font-size:13px;font-weight:700;display:block;margin-top:10px}
   <p class="small" id="wxTip" style="margin-top:8px"></p>
   <p class="small" id="wxSecond" style="margin-top:4px">TP.HCM: đang tải…</p>
   <div style="display:flex;gap:12px;align-items:center"><div class="ring" id="ring">0%</div><p class="small" id="progressText" style="margin:0"></p></div></div>
+  <div id="reminderBanner" class="reminderBanner"></div>
   <div id="views">
     <div id="view-tasks">
       <div class="card"><input id="search" placeholder="Tìm việc…" oninput="render()"></div>
       <div class="chips" id="chips"></div>
       <div id="taskList"></div>
     </div>
+    <div id="view-history" style="display:none"><h2>Lịch sử việc đã xong ✅</h2><p class="small">Những việc đã hoàn thành nằm ở đây, không nằm ở mục Công việc nữa. Bấm vào vòng tròn để làm lại, hoặc dọn dẹp khi không cần xem nữa.</p><div id="historyList"></div></div>
     <div id="view-timeline" style="display:none"><h2>Timeline bạn bè 💕</h2><p class="small">Chỉ hiện việc của những người bạn đang follow và đã bật chia sẻ timeline — bao gồm cả ghi chú của họ. Ghi chú của bạn cũng sẽ hiện ở timeline của bạn bè khi bạn bật chia sẻ.</p><div id="timelineList"></div></div>
-    <div id="view-friends" style="display:none"><h2>Bạn bè 👯</h2><div class="card"><input id="friendSearch" placeholder="Tìm theo tên hoặc @username" oninput="renderFriends()"></div><div id="friendList"></div></div>
+    <div id="view-friends" style="display:none"><h2>Bạn bè 👯</h2><div class="card"><input id="friendSearch" placeholder="Tìm theo @username — gõ ít nhất 2 ký tự" oninput="onFriendSearch()"><p class="small">App không hiện sẵn danh sách mọi người. Chỉ khi bạn tìm đúng username/tên thì kết quả mới hiện ra.</p></div><div id="friendResults"></div><h3>Đang follow</h3><div id="friendList"></div></div>
     <div id="view-profile" style="display:none"><h2>Hồ sơ của mình 🌸</h2>
+      <div class="card"><b>Tuỳ chỉnh avatar 🎨</b><div class="avatarBig" id="avatarPreview">🌸</div>
+      <label>Chọn emoji</label><div class="pickGrid" id="emojiPick"></div>
+      <label>Chọn màu nền</label><div class="pickGrid" id="colorPick"></div>
+      <label>Hoặc tải ảnh lên</label><input id="avatarFile" type="file" accept="image/*" onchange="onAvatarFile(this)">
+      <p style="height:6px"></p><button class="ghost" style="width:100%" onclick="clearAvatarImage()">Xoá ảnh, dùng emoji/chữ</button>
+      <label>Nhắc hẹn mặc định (phút trước giờ hẹn, dùng cho việc mới)</label><input id="editRemindDefault" type="number" min="0" step="1" placeholder="Ví dụ: 15">
+      <p class="small">Thông báo trên máy: bấm nút dưới để cho phép app gửi thông báo nhắc hẹn.</p>
+      <button class="ghost" style="width:100%" onclick="askNotifyPermission()">🔔 Bật thông báo nhắc hẹn</button></div>
       <div class="card"><label>Tên hiển thị</label><input id="editName"><label>Username đăng nhập (chỉ sử dụng duy nhất 1 username)</label><input id="editUser" disabled>
       <label style="display:flex;gap:8px;align-items:center"><input id="editShare" type="checkbox" style="width:auto;margin:0"> Cho bạn bè xem timeline của mình</label>
       <p class="small">Khi bật, bạn bè đang follow bạn sẽ thấy cả việc và ghi chú của bạn ở Timeline của họ.</p>
@@ -96,6 +119,7 @@ label{font-size:13px;font-weight:700;display:block;margin-top:10px}
 <button class="fab" id="fab" onclick="openSheet()" style="display:none">+</button>
 <div class="nav" id="nav" style="display:none">
   <button data-v="tasks" class="on" onclick="showView('tasks',this)">📋<br>Công việc</button>
+  <button data-v="history" onclick="showView('history',this)">✅<br>Lịch sử</button>
   <button data-v="timeline" onclick="showView('timeline',this)">💕<br>Timeline</button>
   <button data-v="friends" onclick="showView('friends',this)">👯<br>Bạn bè</button>
   <button data-v="profile" onclick="showView('profile',this)">🌸<br>Hồ sơ</button>
@@ -105,6 +129,8 @@ label{font-size:13px;font-weight:700;display:block;margin-top:10px}
   <label>Việc cần làm</label><input id="fTitle" placeholder="Ví dụ: Ôn bài, đi sự kiện, thể thao,…">
   <div class="row"><div><label>Danh mục</label><select id="fCat"></select></div><div><label>Ưu tiên</label><select id="fPri"><option>Bình thường</option><option>Quan trọng</option><option>Khẩn cấp</option></select></div></div>
   <label>Ngày giờ hẹn</label><input id="fDue" type="datetime-local">
+  <div class="row"><div><label>Nhắc trước (phút)</label><input id="fRemind" type="number" min="0" step="1" placeholder="15"></div><div><label>Chọn nhanh</label><select id="fRemindPreset" onchange="if(this.value!==''){document.getElementById('fRemind').value=this.value}"><option value="">Tuỳ chỉnh →</option><option value="0">Đúng giờ</option><option value="5">5 phút</option><option value="10">10 phút</option><option value="15">15 phút</option><option value="30">30 phút</option><option value="60">1 giờ</option><option value="1440">1 ngày</option></select></div></div>
+  <p class="small">Để trống ô phút = không nhắc. Tự nhập số phút bất kỳ, ví dụ 45, 90, 120… App sẽ hiện banner + gửi thông báo (nếu đã bật) khi còn đúng số phút đó là tới giờ hẹn.</p>
   <label>Ghi chú</label><textarea id="fNote" rows="2" placeholder="Ghi chú thêm…"></textarea>
   <p style="height:8px"></p><button class="primary" onclick="saveTask()">Lưu việc</button>
   <p style="height:8px"></p><button class="ghost" style="width:100%" onclick="closeSheet()">Đóng</button>
@@ -210,12 +236,20 @@ const CONFIGURED = CFG.SUPABASE_URL && CFG.SUPABASE_URL.indexOf("YOUR-PROJECT") 
 const sb = CONFIGURED ? supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY) : null;
 let meUser = null, meProfile = null, myTasks = [], myFollows = [], allProfiles = [];
 let curCat = "Tất cả", editId = null, view = "tasks", isReg = false;
+let friendResults = [], friendSearchTimer = null, pendingAvatar = {emoji:"",color:"",image:""};
+const AVATAR_EMOJIS=["🌸","😊","😎","🥰","🐱","🐶","🦊","🐰","🌻","⭐","🍓","🧸"];
+const AVATAR_COLORS=["#ffe3ec","#c7d8ff","#d8f3dc","#ffe8b3","#e4c1f9","#ffd6a5","#bde0fe","#ffc6ff"];
+function localAvatar(){try{return JSON.parse(localStorage.getItem("todocute_avatar_"+(meUser?meUser.id:""))||"{}")}catch(e){return{}}}
+function avatarOf(p){if(!p)return{emoji:"",color:"",image:""};const la=(p&&meProfile&&p.id===meProfile.id)?localAvatar():{};return{emoji:p.avatar_emoji||la.emoji||"",color:p.avatar_color||la.color||"",image:p.avatar_image||la.image||""}}
+function avatarInner(p){const a=avatarOf(p);if(a.image)return `<img src="${a.image}" alt="">`;if(a.emoji)return esc(a.emoji);return esc(((p&&p.display_name)||"?").trim().charAt(0).toUpperCase()||"?")}
+function avatarStyle(p){const a=avatarOf(p);return a.color?`background:${a.color}`:""}
+function applyAvatar(){const el=document.getElementById("avatar");if(!el||!meProfile)return;el.innerHTML=avatarInner(meProfile);el.style.cssText=avatarStyle(meProfile)}
 function esc(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function fmt(d){if(!d)return "";const x=new Date(d);return x.toLocaleString("vi-VN",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}
 function isToday(d){if(!d)return false;const x=new Date(d),n=new Date();return x.toDateString()===n.toDateString()}
 function fakeEmail(u){return u + "@todocute.app"}
 function toLocalInput(iso){if(!iso)return "";const d=new Date(iso);const p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"T"+p(d.getHours())+":"+p(d.getMinutes())}
-function profileById(id){return allProfiles.find(p=>p.id===id)}
+function profileById(id){return allProfiles.find(p=>p.id===id)||friendResults.find(p=>p.id===id)||(meProfile&&meProfile.id===id?meProfile:null)}
 function showAuth(){
   document.getElementById("app").style.display="none";document.getElementById("nav").style.display="none";document.getElementById("fab").style.display="none";
   document.getElementById("auth").innerHTML=`<div class="hero"><h1>To Do List 💕</h1><p>Đăng nhập để bắt đầu ngày mới xinh xắn nhé!</p></div>
@@ -263,13 +297,19 @@ async function ensureProfile(user){
   q=await sb.from("profiles").select("*").eq("id",user.id).maybeSingle();
   return q.data||null;
 }
+const PROFILE_COLS="id,username,display_name,share_timeline,avatar_emoji,avatar_color,avatar_image";
+async function selectProfiles(q){let r=await q.select(PROFILE_COLS);if(r.error){r=await q.select("id,username,display_name,share_timeline")}return r}
 async function loadAll(){
-  const profs=await sb.from("profiles").select("id,username,display_name,share_timeline");
-  allProfiles=profs.data||[];
-  const tasks=await sb.from("tasks").select("*").eq("owner_id",meUser.id).order("created_at",{ascending:false});
-  myTasks=tasks.data||[];
   const fol=await sb.from("follows").select("following_id").eq("follower_id",meUser.id);
   myFollows=(fol.data||[]).map(f=>f.following_id);
+  // Chỉ tải hồ sơ của mình + người mình đang follow. KHÔNG tải sẵn toàn bộ user:
+  // tìm bạn phải gõ username ở mục Bạn bè thì mới truy vấn (xem searchFriends).
+  const ids=[meUser.id,...myFollows];
+  const profs=await selectProfiles(sb.from("profiles").in("id",ids));
+  allProfiles=profs.data||[];
+  if(meProfile){const fresh=allProfiles.find(p=>p.id===meUser.id);if(fresh)meProfile=fresh}
+  const tasks=await sb.from("tasks").select("*").eq("owner_id",meUser.id).order("created_at",{ascending:false});
+  myTasks=tasks.data||[];
 }
 async function boot(user){
   meUser=user;
@@ -280,15 +320,15 @@ async function boot(user){
   const h=new Date().getHours();
   document.getElementById("greet").textContent=(h<11?"Buổi sáng vui vẻ ☀️":h<18?"Buổi chiều nhẹ nhàng 🌤️":"Buổi tối thư giãn 🌙");
   document.getElementById("hello").textContent=meProfile.display_name;
-  document.getElementById("avatar").textContent=(meProfile.display_name||"?").trim().charAt(0).toUpperCase();
+  applyAvatar(); startReminderEngine();
   pickQuote(); loadWeather();
   document.getElementById("dateLine").textContent=new Date().toLocaleDateString("vi-VN",{weekday:"long",day:"numeric",month:"numeric",year:"numeric"});
   showView("tasks",document.querySelector('[data-v="tasks"]'));render();
 }
 async function logout(){if(sb) await sb.auth.signOut();meUser=null;meProfile=null;showAuth()}
 function showView(v,btn){view=v;document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("on"));if(btn)btn.classList.add("on");
-  ["tasks","timeline","friends","profile"].forEach(x=>document.getElementById("view-"+x).style.display=x===v?"block":"none");
-  if(v==="friends")renderFriends(); if(v==="timeline")renderTimeline(); if(v==="profile")renderProfile();}
+  ["tasks","history","timeline","friends","profile"].forEach(x=>document.getElementById("view-"+x).style.display=x===v?"block":"none");
+  if(v==="friends")renderFriends(); if(v==="timeline")renderTimeline(); if(v==="profile")renderProfile(); if(v==="history")renderHistory();}
 function render(){
   if(!meProfile)return;
   document.getElementById("chips").innerHTML=["Tất cả",...Object.keys(CATS)].map(c=>`<button class="chip ${curCat===c?"on":""}" onclick="curCat='${c}';render()">${c}</button>`).join("");
@@ -298,41 +338,74 @@ function render(){
   document.getElementById("ring").textContent=pct+"%";document.getElementById("ring").style.background=`conic-gradient(#e76f93 ${pct*3.6}deg,#ffe3ec 0deg)`;document.getElementById("ring").style.color="#ff5c8f";
   document.getElementById("progressText").textContent=today.length?`Hôm nay: ${today.filter(t=>t.done).length}/${today.length} việc đã xong`:"Hôm nay chưa có việc hẹn, cứ thong thả nhé!";
   const now=new Date();
-  const groups=[["⚠️ Quá hạn",tasks.filter(t=>!t.done&&t.due_at&&new Date(t.due_at)<now)],["🌞 Hôm nay",tasks.filter(t=>!t.done&&isToday(t.due_at))],["🔜 Sắp tới",tasks.filter(t=>!t.done&&t.due_at&&!isToday(t.due_at)&&new Date(t.due_at)>=now)],["📌 Chưa có ngày hẹn",tasks.filter(t=>!t.done&&!t.due_at)],["✅ Đã xong",tasks.filter(t=>t.done)]];
-  document.getElementById("taskList").innerHTML=groups.map(([title,arr])=>arr.length?`<h2>${title} (${arr.length})</h2>`+arr.map(taskRow).join(""):"").join("")||`<div class="center">Chưa có việc nào.<br>Bấm nút + để thêm việc đầu tiên nhé! 🌸</div>`;
-  if(tasks.filter(t=>t.done).length)document.getElementById("taskList").innerHTML+=`<p style="height:8px"></p><button class="ghost" style="width:100%" onclick="clearDone()">Dọn dẹp việc đã xong</button>`;
+  const groups=[["⚠️ Quá hạn",tasks.filter(t=>!t.done&&t.due_at&&new Date(t.due_at)<now)],["🌞 Hôm nay",tasks.filter(t=>!t.done&&isToday(t.due_at))],["🔜 Sắp tới",tasks.filter(t=>!t.done&&t.due_at&&!isToday(t.due_at)&&new Date(t.due_at)>=now)],["📌 Chưa có ngày hẹn",tasks.filter(t=>!t.done&&!t.due_at)]];
+  document.getElementById("taskList").innerHTML=groups.map(([title,arr])=>arr.length?`<h2>${title} (${arr.length})</h2>`+arr.map(taskRow).join(""):"").join("")||`<div class="center">Chưa có việc chưa xong nào.<br>Bấm nút + để thêm việc, việc đã xong xem ở mục Lịch sử nhé! 🌸</div>`;
+}
+function renderHistory(){
+  const el=document.getElementById("historyList"); if(!el)return;
+  const done=myTasks.filter(t=>t.done).slice().sort((a,b)=>new Date(b.completed_at||b.created_at||0)-new Date(a.completed_at||a.created_at||0));
+  el.innerHTML=(done.length?`<button class="ghost" style="width:100%" onclick="clearDone()">Dọn dẹp tất cả việc đã xong (${done.length})</button>`:"")+ (done.map(t=>`<div class="task"><div class="circle done" onclick="toggleTask('${t.id}')">✓</div><div style="flex:1"><b class="done">${esc(t.title)}</b><div class="meta"><span class="tag" style="background:${CATS[t.category]||"#e8e8e8"}">${esc(t.category)}</span>${esc(t.priority)}${t.due_at?" • ⏰ "+fmt(t.due_at):""}${t.completed_at?" • ✅ Xong "+fmt(t.completed_at):""}</div>${t.note?`<div class="note">📝 ${esc(t.note)}</div>`:""}</div><button class="ghost" onclick="delTask('${t.id}')">Xoá</button></div>`).join("")||`<div class="center">Chưa có việc nào đã xong.<br>Việc bạn đánh dấu xong sẽ nằm ở đây.</div>`);
 }
 function taskRow(t){
   const over=!t.done&&t.due_at&&new Date(t.due_at)<new Date();
   return `<div class="task"><div class="circle ${t.done?"done":""}" onclick="toggleTask('${t.id}')">${t.done?"✓":""}</div><div style="flex:1" onclick="editTask('${t.id}')">
-  <b class="${t.done?"done":""}">${esc(t.title)}</b><div class="meta"><span class="tag" style="background:${CATS[t.category]||"#e8e8e8"}">${esc(t.category)}</span>${esc(t.priority)}${t.due_at?" • ⏰ "+fmt(t.due_at):""}</div>
+  <b class="${t.done?"done":""}">${esc(t.title)}</b><div class="meta"><span class="tag" style="background:${CATS[t.category]||"#e8e8e8"}">${esc(t.category)}</span>${esc(t.priority)}${t.due_at?" • ⏰ "+fmt(t.due_at):""}${(t.remind_minutes!==null&&t.remind_minutes!==undefined&&t.due_at)?" • 🔔 nhắc trước "+t.remind_minutes+" phút":""}</div>
   ${over?`<div class="over">Đã quá hạn!</div>`:""}${t.note?`<div class="note">📝 ${esc(t.note)}</div>`:""}</div>
   <button class="ghost" onclick="delTask('${t.id}')">Xoá</button></div>`;
 }
-async function toggleTask(id){const t=myTasks.find(x=>x.id===id);if(!t)return;const res=await sb.from("tasks").update({done:!t.done}).eq("id",id);if(!res.error){t.done=!t.done;render();}}
-async function delTask(id){if(!confirm("Xoá việc này nhé?"))return;const res=await sb.from("tasks").delete().eq("id",id);if(!res.error){myTasks=myTasks.filter(x=>x.id!==id);render();}}
-async function clearDone(){const res=await sb.from("tasks").delete().eq("owner_id",meUser.id).eq("done",true);if(!res.error){myTasks=myTasks.filter(t=>!t.done);render();}}
-function openSheet(){editId=null;document.getElementById("sheetTitle").textContent="Thêm việc mới ✨";document.getElementById("fTitle").value="";document.getElementById("fDue").value="";document.getElementById("fNote").value="";document.getElementById("fCat").innerHTML=Object.keys(CATS).map(c=>`<option>${c}</option>`).join("");document.getElementById("sheet").classList.add("open")}
+async function toggleTask(id){const t=myTasks.find(x=>x.id===id);if(!t)return;const nd=!t.done, ca=nd?new Date().toISOString():null;let res=await sb.from("tasks").update({done:nd,completed_at:ca}).eq("id",id);if(res.error){res=await sb.from("tasks").update({done:nd}).eq("id",id)}if(!res.error){t.done=nd;t.completed_at=ca;render();renderHistory();}}
+async function delTask(id){if(!confirm("Xoá việc này nhé?"))return;const res=await sb.from("tasks").delete().eq("id",id);if(!res.error){myTasks=myTasks.filter(x=>x.id!==id);render();renderHistory();}}
+async function clearDone(){if(!confirm("Xoá hẳn tất cả việc đã xong trong Lịch sử nhé?"))return;const res=await sb.from("tasks").delete().eq("owner_id",meUser.id).eq("done",true);if(!res.error){myTasks=myTasks.filter(t=>!t.done);render();renderHistory();}}
+function defaultRemind(){const v=localStorage.getItem("todocute_default_remind");return v===null?"15":v}
+function openSheet(){editId=null;document.getElementById("sheetTitle").textContent="Thêm việc mới ✨";document.getElementById("fTitle").value="";document.getElementById("fDue").value="";document.getElementById("fNote").value="";document.getElementById("fRemind").value=defaultRemind();document.getElementById("fRemindPreset").value="";document.getElementById("fCat").innerHTML=Object.keys(CATS).map(c=>`<option>${c}</option>`).join("");document.getElementById("sheet").classList.add("open")}
 function closeSheet(){document.getElementById("sheet").classList.remove("open")}
-function editTask(id){const t=myTasks.find(x=>x.id===id);if(!t)return;editId=id;document.getElementById("sheetTitle").textContent="Sửa việc ✏️";document.getElementById("fTitle").value=t.title;document.getElementById("fDue").value=toLocalInput(t.due_at);document.getElementById("fNote").value=t.note||"";document.getElementById("fCat").innerHTML=Object.keys(CATS).map(c=>`<option ${c===t.category?"selected":""}>${c}</option>`).join("");document.getElementById("fPri").value=t.priority;document.getElementById("sheet").classList.add("open")}
+function editTask(id){const t=myTasks.find(x=>x.id===id);if(!t)return;editId=id;document.getElementById("sheetTitle").textContent="Sửa việc ✏️";document.getElementById("fTitle").value=t.title;document.getElementById("fDue").value=toLocalInput(t.due_at);document.getElementById("fNote").value=t.note||"";document.getElementById("fRemind").value=(t.remind_minutes===null||t.remind_minutes===undefined)?"":t.remind_minutes;document.getElementById("fRemindPreset").value="";document.getElementById("fCat").innerHTML=Object.keys(CATS).map(c=>`<option ${c===t.category?"selected":""}>${c}</option>`).join("");document.getElementById("fPri").value=t.priority;document.getElementById("sheet").classList.add("open")}
 async function saveTask(){
   const title=document.getElementById("fTitle").value.trim();if(!title){alert("Nhập tên việc nhé!");return}
-  const data={title,category:document.getElementById("fCat").value,priority:document.getElementById("fPri").value,due_at:document.getElementById("fDue").value?new Date(document.getElementById("fDue").value).toISOString():null,note:document.getElementById("fNote").value.trim()};
-  if(editId){const res=await sb.from("tasks").update(data).eq("id",editId);if(res.error){alert("Lưu chưa được: "+res.error.message);return}}
-  else{const res=await sb.from("tasks").insert({owner_id:meUser.id,done:false,...data}).select().single();if(res.error){alert("Lưu chưa được: "+res.error.message);return}}
+  const rv=document.getElementById("fRemind").value.trim(); const remind=(rv===""||!document.getElementById("fDue").value)?null:Math.max(0,parseInt(rv,10)||0);
+  const data={title,category:document.getElementById("fCat").value,priority:document.getElementById("fPri").value,due_at:document.getElementById("fDue").value?new Date(document.getElementById("fDue").value).toISOString():null,note:document.getElementById("fNote").value.trim(),remind_minutes:remind};
+  if(editId){let res=await sb.from("tasks").update(data).eq("id",editId);if(res.error&&/remind_minutes|completed_at|column/i.test(res.error.message)){const d2={...data};delete d2.remind_minutes;res=await sb.from("tasks").update(d2).eq("id",editId);if(!res.error)alert("Đã lưu việc, nhưng database chưa có cột nhắc hẹn. Chạy lại schema.sql trong Supabase để bật nhắc theo phút nhé!")}if(res.error){alert("Lưu chưa được: "+res.error.message);return}}
+  else{let res=await sb.from("tasks").insert({owner_id:meUser.id,done:false,...data}).select().single();if(res.error&&/remind_minutes|completed_at|column/i.test(res.error.message)){const d2={...data};delete d2.remind_minutes;res=await sb.from("tasks").insert({owner_id:meUser.id,done:false,...d2}).select().single();if(!res.error)alert("Đã lưu việc, nhưng database chưa có cột nhắc hẹn. Chạy lại schema.sql trong Supabase để bật nhắc theo phút nhé!")}if(res.error){alert("Lưu chưa được: "+res.error.message);return}}
   await loadAll();closeSheet();render();
 }
+function askNotifyPermission(){if(!("Notification" in window)){alert("Trình duyệt này không hỗ trợ thông báo.");return}Notification.requestPermission().then(p=>alert(p==="granted"?"Đã bật thông báo nhắc hẹn rồi!":"Bạn chưa cho phép thông báo, app vẫn sẽ hiện banner nhắc trong app nhé."))}
+function startReminderEngine(){if(window._remindTimer)clearInterval(window._remindTimer);checkReminders();window._remindTimer=setInterval(checkReminders,30000)}
+function checkReminders(){
+  if(!meProfile)return; const now=Date.now(); const due=[];
+  myTasks.filter(t=>!t.done&&t.due_at&&t.remind_minutes!==null&&t.remind_minutes!==undefined).forEach(t=>{
+    const dueAt=new Date(t.due_at).getTime(), remindAt=dueAt-(Number(t.remind_minutes)||0)*60000, key="todocute_notified_"+t.id+"_"+t.due_at;
+    if(now>=remindAt&&now<dueAt+60000&&!localStorage.getItem(key)){localStorage.setItem(key,"1");due.push(t)}
+  });
+  if(!due.length)return;
+  const b=document.getElementById("reminderBanner"); if(b){b.innerHTML="🔔 <b>Sắp tới giờ hẹn:</b><br>"+due.map(t=>esc(t.title)+" — ⏰ "+fmt(t.due_at)+" (nhắc trước "+t.remind_minutes+" phút)").join("<br>")+`<br><button class="ghost" style="margin-top:8px" onclick="document.getElementById('reminderBanner').classList.remove('show')">Đã biết</button>`;b.classList.add("show")}
+  if("Notification" in window&&Notification.permission==="granted"){due.forEach(t=>{try{new Notification("🔔 Sắp tới giờ: "+t.title,{body:"Giờ hẹn: "+fmt(t.due_at)})}catch(e){}})}
+}
+function userRow(u){const fol=myFollows.includes(u.id);return `<div class="user"><div style="display:flex;gap:10px;align-items:center"><div class="miniAvatar" style="${avatarStyle(u)}">${avatarInner(u)}</div><div><b>${esc(u.display_name)}</b><div class="small">@${esc(u.username)} • ${u.share_timeline?"đang chia sẻ timeline":"chưa chia sẻ timeline"}</div></div></div><button class="${fol?"ghost":"primary"}" style="width:auto" onclick="toggleFollow('${u.id}')">${fol?"Đang follow":"Follow"}</button></div>`}
 function renderFriends(){
-  const q=(document.getElementById("friendSearch").value||"").toLowerCase();
-  const list=allProfiles.filter(u=>u.id!==meUser.id&&(!q||u.username.includes(q)||(u.display_name||"").toLowerCase().includes(q)));
-  document.getElementById("friendList").innerHTML=list.map(u=>{
-    const fol=myFollows.includes(u.id);
-    return `<div class="user"><div><b>${esc(u.display_name)}</b><div class="small">@${esc(u.username)} • ${u.share_timeline?"đang chia sẻ timeline":"chưa chia sẻ timeline"}</div></div><button class="${fol?"ghost":"primary"}" style="width:auto" onclick="toggleFollow('${u.id}')">${fol?"Đang follow":"Follow"}</button></div>`;
-  }).join("")||`<div class="center">Chưa có bạn nào khác.<br>Hãy gửi link cho bạn bè cùng tham gia nha!</div>`;
+  // Chỉ hiện người ĐÃ follow ở mục riêng. Không hiện sẵn toàn bộ user nữa.
+  const following=allProfiles.filter(u=>u.id!==meUser.id&&myFollows.includes(u.id));
+  document.getElementById("friendList").innerHTML=following.map(userRow).join("")||`<div class="center">Bạn chưa follow ai.<br>Gõ @username ở ô tìm kiếm ở trên để tìm bạn nhé!</div>`;
+  renderFriendResults();
+}
+function renderFriendResults(){
+  const el=document.getElementById("friendResults"); if(!el)return;
+  const q=(document.getElementById("friendSearch").value||"").trim();
+  if(!q){el.innerHTML="";return}
+  if(q.replace("@","").length<2){el.innerHTML=`<div class="center">Gõ ít nhất 2 ký tự của username để tìm bạn…</div>`;return}
+  el.innerHTML=friendResults.length?`<h3>Kết quả tìm kiếm</h3>`+friendResults.map(userRow).join(""):`<div class="center">Không tìm thấy ai khớp “${esc(q)}”.<br>Kiểm tra lại username nhé!</div>`;
+}
+function onFriendSearch(){clearTimeout(friendSearchTimer);friendSearchTimer=setTimeout(searchFriends,350)}
+async function searchFriends(){
+  const raw=(document.getElementById("friendSearch").value||"").trim().toLowerCase().replace(/^@/,"");
+  if(raw.length<2){friendResults=[];renderFriendResults();return}
+  const q=raw.replace(/[%_,()]/g,"");
+  let res=await sb.from("profiles").select(PROFILE_COLS).neq("id",meUser.id).or(`username.ilike.%${q}%,display_name.ilike.%${q}%`).limit(20);
+  if(res.error){res=await sb.from("profiles").select("id,username,display_name,share_timeline").neq("id",meUser.id).or(`username.ilike.%${q}%,display_name.ilike.%${q}%`).limit(20)}
+  friendResults=res.data||[]; renderFriendResults();
 }
 async function toggleFollow(to){
-  if(myFollows.includes(to)){const res=await sb.from("follows").delete().eq("follower_id",meUser.id).eq("following_id",to);if(!res.error)myFollows=myFollows.filter(x=>x!==to);}
-  else{const res=await sb.from("follows").insert({follower_id:meUser.id,following_id:to});if(res.error){alert("Follow chưa được: "+res.error.message);return}myFollows.push(to);}
+  if(myFollows.includes(to)){const res=await sb.from("follows").delete().eq("follower_id",meUser.id).eq("following_id",to);if(!res.error){myFollows=myFollows.filter(x=>x!==to);allProfiles=allProfiles.filter(x=>x.id!==to)}}
+  else{const res=await sb.from("follows").insert({follower_id:meUser.id,following_id:to});if(res.error){alert("Follow chưa được: "+res.error.message);return}myFollows.push(to);const p=profileById(to);if(p&&!allProfiles.find(x=>x.id===to))allProfiles.push(p)}
   renderFriends();renderTimeline();
 }
 async function renderTimeline(){
@@ -340,17 +413,33 @@ async function renderTimeline(){
   if(!myFollows.length){el.innerHTML=`<div class="center">Chưa có gì để xem.<br>Follow một người bạn và nhờ họ bật chia sẻ timeline nhé!</div>`;return}
   const res=await sb.from("tasks").select("*").in("owner_id",myFollows).order("due_at",{ascending:true});
   const list=(res.data||[]).filter(t=>{const p=profileById(t.owner_id);return p&&p.share_timeline});
-  el.innerHTML=list.map(t=>{const u=profileById(t.owner_id);return `<div class="card"><b>${esc(t.title)}</b><div class="meta">👤 ${esc(u?u.display_name:t.owner_id)} • <span class="tag" style="background:${CATS[t.category]||"#e8e8e8"}">${esc(t.category)}</span>${t.done?"✅ Đã xong":"⏳ Đang làm"}${t.due_at?" • "+fmt(t.due_at):""}</div>${t.note?`<div class="note">📝 ${esc(t.note)}</div>`:""}</div>`}).join("")||`<div class="center">Chưa có gì để xem.<br>Follow một người bạn và nhờ họ bật chia sẻ timeline nhé!</div>`;
+  el.innerHTML=list.map(t=>{const u=profileById(t.owner_id);return `<div class="card"><b>${esc(t.title)}</b><div class="meta">${u&&avatarOf(u).emoji?esc(avatarOf(u).emoji)+" ":"👤 "}${esc(u?u.display_name:t.owner_id)} • <span class="tag" style="background:${CATS[t.category]||"#e8e8e8"}">${esc(t.category)}</span>${t.done?"✅ Đã xong":"⏳ Đang làm"}${t.due_at?" • "+fmt(t.due_at):""}</div>${t.note?`<div class="note">📝 ${esc(t.note)}</div>`:""}</div>`}).join("")||`<div class="center">Chưa có gì để xem.<br>Follow một người bạn và nhờ họ bật chia sẻ timeline nhé!</div>`;
 }
+function renderAvatarPicker(){
+  const pv=document.getElementById("avatarPreview"); if(!pv)return;
+  const tmp={display_name:meProfile.display_name,avatar_emoji:pendingAvatar.emoji,avatar_color:pendingAvatar.color,avatar_image:pendingAvatar.image};
+  pv.innerHTML=pendingAvatar.image?`<img src="${pendingAvatar.image}" alt="">`:(pendingAvatar.emoji||esc((meProfile.display_name||"?").trim().charAt(0).toUpperCase())); pv.style.background=pendingAvatar.color||"#ffe3ec";
+  document.getElementById("emojiPick").innerHTML=AVATAR_EMOJIS.map(e=>`<button class="pick ${pendingAvatar.emoji===e?"on":""}" onclick="pickAvatarEmoji('${e}')">${e}</button>`).join("");
+  document.getElementById("colorPick").innerHTML=AVATAR_COLORS.map(c=>`<button class="swatch ${pendingAvatar.color===c?"on":""}" style="background:${c}" onclick="pickAvatarColor('${c}')"></button>`).join("");
+}
+function pickAvatarEmoji(e){pendingAvatar.emoji=e;pendingAvatar.image="";renderAvatarPicker()}
+function pickAvatarColor(c){pendingAvatar.color=c;renderAvatarPicker()}
+function clearAvatarImage(){pendingAvatar.image="";const f=document.getElementById("avatarFile");if(f)f.value="";renderAvatarPicker()}
+function onAvatarFile(input){const file=input.files&&input.files[0];if(!file)return;const img=new Image();const url=URL.createObjectURL(file);img.onload=function(){const max=160,sc=Math.min(1,max/Math.max(img.width,img.height));const cv=document.createElement("canvas");cv.width=Math.round(img.width*sc);cv.height=Math.round(img.height*sc);cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);URL.revokeObjectURL(url);pendingAvatar.image=cv.toDataURL("image/jpeg",0.85);renderAvatarPicker()};img.src=url}
 function renderProfile(){document.getElementById("editName").value=meProfile.display_name;document.getElementById("editUser").value=meProfile.username;document.getElementById("editShare").checked=!!meProfile.share_timeline;
+  pendingAvatar=avatarOf(meProfile); document.getElementById("editRemindDefault").value=defaultRemind(); renderAvatarPicker();
   const f=myFollows.length;document.getElementById("followStats").textContent=`Đang follow ${f} người`}
 async function saveProfile(){
   const nn=document.getElementById("editName").value.trim();
   if(!nn){alert("Nhập tên hiển thị nhé!");return}
-  const res=await sb.from("profiles").update({display_name:nn,share_timeline:document.getElementById("editShare").checked}).eq("id",meUser.id);
+  try{localStorage.setItem("todocute_default_remind",document.getElementById("editRemindDefault").value.trim());localStorage.setItem("todocute_avatar_"+meUser.id,JSON.stringify(pendingAvatar))}catch(e){}
+  const payload={display_name:nn,share_timeline:document.getElementById("editShare").checked,avatar_emoji:pendingAvatar.emoji||null,avatar_color:pendingAvatar.color||null,avatar_image:pendingAvatar.image||null};
+  let res=await sb.from("profiles").update(payload).eq("id",meUser.id);
+  let avatarSavedToDb=true;
+  if(res.error&&/avatar_|column/i.test(res.error.message)){avatarSavedToDb=false;res=await sb.from("profiles").update({display_name:nn,share_timeline:payload.share_timeline}).eq("id",meUser.id)}
   if(res.error){alert("Lưu chưa được: "+res.error.message);return}
-  meProfile.display_name=nn;meProfile.share_timeline=document.getElementById("editShare").checked;
-  await loadAll();alert("Đã lưu tên mới rồi!");boot(meUser);
+  meProfile.display_name=nn;meProfile.share_timeline=payload.share_timeline;meProfile.avatar_emoji=payload.avatar_emoji;meProfile.avatar_color=payload.avatar_color;meProfile.avatar_image=payload.avatar_image;
+  await loadAll();applyAvatar();alert(avatarSavedToDb?"Đã lưu hồ sơ + avatar rồi!":"Đã lưu hồ sơ + avatar trên máy này. Để avatar đồng bộ mọi máy, chạy lại schema.sql trong Supabase nhé!");boot(meUser);
 }
 (async function init(){
   if(!CONFIGURED){showAuth();return}
