@@ -192,6 +192,14 @@ h2{color:#f2efff} h3{color:#00e5ff}
       <p style="height:8px"></p><button class="primary" onclick="saveProfile()">Lưu thay đổi</button>
       <p style="height:8px"></p><button class="ghost" style="width:100%" onclick="logout()">Đăng xuất</button>
       <p class="small" id="followStats"></p></div>
+      <div class="card"><b>Báo lỗi / Góp ý tính năng 🐞</b>
+      <p class="small">Gặp lỗi hoặc muốn thêm tính năng gì, cứ gửi ở đây. Nội dung được gửi <b>riêng về Gmail của chủ app</b>, không hiện công khai trong app và không lưu vào dữ liệu việc/bạn bè.</p>
+      <label>Loại</label><select id="repType"><option>Báo lỗi</option><option>Góp ý tính năng</option><option>Khác</option></select>
+      <label>Tiêu đề</label><input id="repTitle" placeholder="Ví dụ: Bấm lưu việc bị trắng trang">
+      <label>Nội dung chi tiết</label><textarea id="repBody" rows="3" placeholder="Mô tả lỗi gặp ở đâu, lúc làm gì… hoặc tính năng bạn muốn có…"></textarea>
+      <p style="height:8px"></p><button class="primary" id="repBtn" onclick="sendReport()">Gửi báo cáo</button>
+      <p class="small" id="repMsg"></p>
+      <button class="ghost" style="width:100%" onclick="sendReportByMail()">Hoặc gửi bằng ứng dụng email của bạn</button></div>
       <div class="card"><b>Về app này</b><p class="small">. Mình tạo ra để phục vụ cho công việc của mình và của người quan trọng mà mình muốn connect, hiện tại chỉ chia sẻ với nhau và không công khai. App không làm với mục đích kinh doanh và lợi nhuận.</p></div>
     </div>
   </div>
@@ -572,6 +580,45 @@ async function renderTimeline(){
   el.innerHTML=list.map(timelineCard).join("")||(timelineTab==="done"
     ?`<div class="center">Bạn bè chưa làm xong việc nào.<br>Việc họ hoàn thành sẽ hiện ở mục này.</div>`
     :`<div class="center">Bạn bè không có việc nào đang chờ làm.<br>Hoặc họ chưa bật chia sẻ timeline.</div>`);
+}
+const REPORT_EMAIL="nhuuyyis2806@gmail.com";
+function reportPayload(){
+  return {
+    type:document.getElementById("repType").value,
+    title:document.getElementById("repTitle").value.trim(),
+    body:document.getElementById("repBody").value.trim(),
+    from:(meProfile?meProfile.display_name:"")+" (@"+(meProfile?meProfile.username:"")+")",
+  };
+}
+function sendReportByMail(){
+  const r=reportPayload();
+  const subject=encodeURIComponent("[To Do Cute] "+r.type+": "+(r.title||"(chưa có tiêu đề)"));
+  const body=encodeURIComponent("Loại: "+r.type+"\nNgười gửi: "+r.from+"\n\n"+r.body);
+  location.href="mailto:"+REPORT_EMAIL+"?subject="+subject+"&body="+body;
+}
+async function sendReport(){
+  const msg=document.getElementById("repMsg"), btn=document.getElementById("repBtn");
+  const r=reportPayload();
+  if(!r.title&&!r.body){msg.textContent="Nhập tiêu đề hoặc nội dung trước khi gửi nhé.";return}
+  btn.disabled=true; btn.textContent="Đang gửi…"; msg.textContent="";
+  try{
+    const res=await fetch("https://formsubmit.co/ajax/"+REPORT_EMAIL,{
+      method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
+      body:JSON.stringify({
+        _subject:"[To Do Cute] "+r.type+": "+(r.title||"(chưa có tiêu đề)"),
+        _template:"table",
+        "Loai":r.type,"Tieu de":r.title,"Noi dung":r.body,"Nguoi gui":r.from,
+      })
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||String(data.success)!=="true")throw new Error("formsubmit");
+    msg.textContent="✅ Đã gửi rồi! Cảm ơn bạn, chủ app sẽ nhận được trong Gmail riêng. (Nếu đây là lần gửi đầu tiên, chủ app cần bấm nút Activate trong email xác nhận của FormSubmit thì các lần sau mới tới thẳng.)";
+    document.getElementById("repTitle").value=""; document.getElementById("repBody").value="";
+  }catch(e){
+    msg.textContent="Gửi tự động chưa được (có thể do mạng hoặc dịch vụ gửi chưa kích hoạt). Đang mở ứng dụng email để bạn gửi trực tiếp…";
+    sendReportByMail();
+  }
+  btn.disabled=false; btn.textContent="Gửi báo cáo";
 }
 function renderAvatarPicker(){
   const pv=document.getElementById("avatarPreview"); if(!pv)return;
