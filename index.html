@@ -175,7 +175,9 @@ h2{color:#f2efff} h3{color:#00e5ff}
     <div id="historyMine"><p class="small">Việc đã hoàn thành của bạn. Bấm vào vòng tròn để làm lại, hoặc dọn dẹp khi không cần xem nữa.</p><div id="historyList"></div></div>
     <div id="historyFriends" style="display:none"><p class="small">Việc đã hoàn thành của những người bạn đang follow và có bật chia sẻ timeline. Chỉ xem, không sửa được việc của bạn bè.</p><div id="friendHistoryList"><div class="center">Đang tải…</div></div></div>
     </div>
-    <div id="view-timeline" style="display:none"><h2>Timeline bạn bè 💕</h2><p class="small">Chỉ hiện việc của những người bạn đang follow và đã bật chia sẻ timeline — bao gồm cả ghi chú của họ. Ghi chú của bạn cũng sẽ hiện ở timeline của bạn bè khi bạn bật chia sẻ.</p><div id="timelineList"></div></div>
+    <div id="view-timeline" style="display:none"><h2>Timeline bạn bè 💕</h2><p class="small">Chỉ hiện việc của những người bạn đang follow và đã bật chia sẻ timeline — bao gồm cả ghi chú của họ. Ghi chú của bạn cũng sẽ hiện ở timeline của bạn bè khi bạn bật chia sẻ.</p>
+    <div class="segTabs"><button id="ttab-undone" class="seg on" onclick="setTimelineTab('undone')">⏳ Chưa làm</button><button id="ttab-done" class="seg" onclick="setTimelineTab('done')">✅ Đã làm</button></div>
+    <div id="timelineList"></div></div>
     <div id="view-friends" style="display:none"><h2>Bạn bè 👯</h2><div class="card"><input id="friendSearch" placeholder="Tìm theo @username — gõ ít nhất 2 ký tự" oninput="onFriendSearch()"><p class="small">App không hiện sẵn danh sách mọi người. Chỉ khi bạn tìm đúng username/tên thì kết quả mới hiện ra.</p></div><div id="friendResults"></div><h3>Đang follow</h3><div id="friendList"></div></div>
     <div id="view-profile" style="display:none"><h2>Hồ sơ của mình 🌸</h2>
       <div class="card"><b>Tuỳ chỉnh avatar 🎨</b><div class="avatarBig" id="avatarPreview">🌸</div>
@@ -423,7 +425,7 @@ async function boot(user){
 async function logout(){if(sb) await sb.auth.signOut();meUser=null;meProfile=null;showAuth()}
 function showView(v,btn){view=v;document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("on"));if(btn)btn.classList.add("on");
   ["tasks","history","timeline","friends","profile"].forEach(x=>document.getElementById("view-"+x).style.display=x===v?"block":"none");
-  if(v==="friends")renderFriends(); if(v==="timeline")renderTimeline(); if(v==="profile")renderProfile(); if(v==="history"){if(historyTab==="friends")renderFriendHistory();else renderHistory()}}
+  if(v==="friends")renderFriends(); if(v==="timeline"){timelineCache=null;renderTimeline()} if(v==="profile")renderProfile(); if(v==="history"){if(historyTab==="friends")renderFriendHistory();else renderHistory()}}
 function render(){
   if(!meProfile)return;
   document.getElementById("chips").innerHTML=["Tất cả",...Object.keys(CATS)].map(c=>`<button class="chip ${curCat===c?"on":""}" onclick="curCat='${c}';render()">${c}</button>`).join("");
@@ -545,14 +547,31 @@ async function searchFriends(){
 async function toggleFollow(to){
   if(myFollows.includes(to)){const res=await sb.from("follows").delete().eq("follower_id",meUser.id).eq("following_id",to);if(!res.error){myFollows=myFollows.filter(x=>x!==to);allProfiles=allProfiles.filter(x=>x.id!==to)}}
   else{const res=await sb.from("follows").insert({follower_id:meUser.id,following_id:to});if(res.error){alert("Follow chưa được: "+res.error.message);return}myFollows.push(to);const p=profileById(to);if(p&&!allProfiles.find(x=>x.id===to))allProfiles.push(p)}
-  renderFriends();renderTimeline();
+  timelineCache=null; renderFriends();renderTimeline();
+}
+let timelineTab="undone", timelineCache=null;
+function setTimelineTab(t){timelineTab=t;renderTimeline()}
+function timelineCard(t){
+  const u=profileById(t.owner_id);
+  return `<div class="card"><div style="display:flex;gap:10px;align-items:center"><div class="miniAvatar" data-avatar-for="${t.owner_id}" style="${u?avatarStyle(u):""}">${u?avatarInner(u):"?"}</div><div><b class="${t.done?"done":""}">${esc(t.title)}</b><div class="meta">👤 ${esc(u?u.display_name:t.owner_id)} • <span class="tag" style="background:${CATS[t.category]||"#e8e8e8"}">${esc(t.category)}</span>${esc(t.priority)}${t.done?" • ✅ Đã xong":" • ⏳ Đang làm"}${t.due_at?" • ⏰ "+fmt(t.due_at):""}${t.done&&t.completed_at?" • Xong "+fmt(t.completed_at):""}</div></div></div>${t.note?`<div class="note">📝 ${esc(t.note)}</div>`:""}</div>`;
 }
 async function renderTimeline(){
   const el=document.getElementById("timelineList");
+  const bU=document.getElementById("ttab-undone"), bD=document.getElementById("ttab-done");
+  if(bU&&bD){bU.classList.toggle("on",timelineTab==="undone");bD.classList.toggle("on",timelineTab==="done")}
   if(!myFollows.length){el.innerHTML=`<div class="center">Chưa có gì để xem.<br>Follow một người bạn và nhờ họ bật chia sẻ timeline nhé!</div>`;return}
-  const res=await sb.from("tasks").select("*").in("owner_id",myFollows).order("due_at",{ascending:true});
-  const list=(res.data||[]).filter(t=>{const p=profileById(t.owner_id);return p&&p.share_timeline});
-  el.innerHTML=list.map(t=>{const u=profileById(t.owner_id);return `<div class="card"><div style="display:flex;gap:10px;align-items:center"><div class="miniAvatar" data-avatar-for="${t.owner_id}" style="${u?avatarStyle(u):""}">${u?avatarInner(u):"?"}</div><div><b>${esc(t.title)}</b><div class="meta">👤 ${esc(u?u.display_name:t.owner_id)} • <span class="tag" style="background:${CATS[t.category]||"#e8e8e8"}">${esc(t.category)}</span>${t.done?"✅ Đã xong":"⏳ Đang làm"}${t.due_at?" • "+fmt(t.due_at):""}</div></div></div>${t.note?`<div class="note">📝 ${esc(t.note)}</div>`:""}</div>`}).join("")||`<div class="center">Chưa có gì để xem.<br>Follow một người bạn và nhờ họ bật chia sẻ timeline nhé!</div>`;
+  if(!timelineCache){el.innerHTML=`<div class="center">Đang tải timeline…</div>`;
+    const res=await sb.from("tasks").select("*").in("owner_id",myFollows).order("due_at",{ascending:true});
+    timelineCache=(res.data||[]).filter(t=>{const pr=profileById(t.owner_id);return pr&&pr.share_timeline});
+  }
+  const undone=timelineCache.filter(t=>!t.done).slice().sort((a,b)=>(a.due_at?new Date(a.due_at).getTime():Infinity)-(b.due_at?new Date(b.due_at).getTime():Infinity));
+  const done=timelineCache.filter(t=>t.done).slice().sort((a,b)=>new Date(b.completed_at||b.created_at||0)-new Date(a.completed_at||a.created_at||0));
+  if(bU)bU.textContent=`⏳ Chưa làm (${undone.length})`;
+  if(bD)bD.textContent=`✅ Đã làm (${done.length})`;
+  const list=timelineTab==="done"?done:undone;
+  el.innerHTML=list.map(timelineCard).join("")||(timelineTab==="done"
+    ?`<div class="center">Bạn bè chưa làm xong việc nào.<br>Việc họ hoàn thành sẽ hiện ở mục này.</div>`
+    :`<div class="center">Bạn bè không có việc nào đang chờ làm.<br>Hoặc họ chưa bật chia sẻ timeline.</div>`);
 }
 function renderAvatarPicker(){
   const pv=document.getElementById("avatarPreview"); if(!pv)return;
