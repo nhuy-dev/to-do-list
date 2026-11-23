@@ -298,14 +298,15 @@ async function ensureProfile(user){
   return q.data||null;
 }
 const PROFILE_COLS="id,username,display_name,share_timeline,avatar_emoji,avatar_color,avatar_image";
-async function selectProfiles(q){let r=await q.select(PROFILE_COLS);if(r.error){r=await q.select("id,username,display_name,share_timeline")}return r}
 async function loadAll(){
   const fol=await sb.from("follows").select("following_id").eq("follower_id",meUser.id);
   myFollows=(fol.data||[]).map(f=>f.following_id);
   // Chỉ tải hồ sơ của mình + người mình đang follow. KHÔNG tải sẵn toàn bộ user:
   // tìm bạn phải gõ username ở mục Bạn bè thì mới truy vấn (xem searchFriends).
+  // LƯU Ý: với Supabase phải gọi .select() TRƯỚC .in(), đảo ngược là lỗi trắng trang.
   const ids=[meUser.id,...myFollows];
-  const profs=await selectProfiles(sb.from("profiles").in("id",ids));
+  let profs=await sb.from("profiles").select(PROFILE_COLS).in("id",ids);
+  if(profs.error){profs=await sb.from("profiles").select("id,username,display_name,share_timeline").in("id",ids)}
   allProfiles=profs.data||[];
   if(meProfile){const fresh=allProfiles.find(p=>p.id===meUser.id);if(fresh)meProfile=fresh}
   const tasks=await sb.from("tasks").select("*").eq("owner_id",meUser.id).order("created_at",{ascending:false});
@@ -315,7 +316,7 @@ async function boot(user){
   meUser=user;
   meProfile=await ensureProfile(user);
   if(!meProfile){showAuth();document.getElementById("authMsg").textContent="Không tìm thấy hồ sơ cho tài khoản này. Thử đăng ký lại bằng username khác nhé.";return}
-  await loadAll();
+  try{await loadAll()}catch(e){console.error("loadAll lỗi:",e);allProfiles=[meProfile];myTasks=[];myFollows=[]}
   document.getElementById("auth").innerHTML="";document.getElementById("app").style.display="block";document.getElementById("nav").style.display="flex";document.getElementById("fab").style.display="block";
   const h=new Date().getHours();
   document.getElementById("greet").textContent=(h<11?"Buổi sáng vui vẻ ☀️":h<18?"Buổi chiều nhẹ nhàng 🌤️":"Buổi tối thư giãn 🌙");
