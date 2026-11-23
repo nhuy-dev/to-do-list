@@ -6,5 +6,6 @@
 // ============================================================
 window.SUPABASE_CONFIG = {
   SUPABASE_URL: "https://jdqtrfxpflygzsgwsagi.supabase.co",
+  VAPID_PUBLIC_KEY: "BIT_YrfVWvZ-owITMIaGFrYpCOlYHtr3HaCxREfgrY5kMRaF3bB_9jNow8y0gPvnOTtyK3bD00W_s3bEaArI5y4",
   SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcXRyZnhwZmx5Z3pzZ3dzYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM0MjQ2ODAsImV4cCI6MjEwOTAwMDY4MH0.Ycjb6DmsxIh_WegkXulcR2V7JwyFPbpOsKO55DHciD4"
 };

@@ -1,7 +1,7 @@
 // Service worker cho bản Supabase: CHỈ cache file giao diện cùng origin.
 // Tuyệt đối không cache API Supabase (supabase.co), vì dữ liệu tài khoản/việc/follow phải luôn mới.
-// v4: HTML dùng network-first để bản deploy mới luôn được tải về, không bị kẹt bản cũ trong cache.
-const CACHE = "todocute-supabase-v4";
+// v5: thêm Web Push — nhận thông báo nhắc hẹn ngay cả khi app đã tắt.
+const CACHE = "todocute-supabase-v5";
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
@@ -32,4 +32,25 @@ self.addEventListener("fetch", (e) => {
       return res;
     }).catch(() => caches.match("./index.html")))
   );
+});
+
+// ---- Web Push: server (Supabase Edge Function) gửi tín hiệu tới đây ----
+self.addEventListener("push", (e) => {
+  let data = { title: "🔔 Tới giờ hẹn rồi!", body: "Bạn có một việc sắp tới giờ." };
+  try { if (e.data) data = { ...data, ...e.data.json() }; } catch (err) {}
+  e.waitUntil(self.registration.showNotification(data.title, {
+    body: data.body,
+    icon: "./icons/icon-192.png",
+    badge: "./icons/icon-192.png",
+    tag: data.tag || "todo-reminder",
+    data: { url: data.url || "./" },
+  }));
+});
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const target = (e.notification.data && e.notification.data.url) || "./";
+  e.waitUntil(clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+    for (const c of list) { if ("focus" in c) return c.focus(); }
+    if (clients.openWindow) return clients.openWindow(target);
+  }));
 });

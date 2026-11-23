@@ -117,6 +117,7 @@ h3{font-size:13.5px}
   <p class="small" id="wxSecond" style="margin-top:4px">TP.HCM: đang tải…</p>
   <div style="display:flex;gap:12px;align-items:center"><div class="ring" id="ring">0%</div><p class="small" id="progressText" style="margin:0"></p></div></div>
   <div id="reminderBanner" class="reminderBanner"></div>
+  <div id="pushBanner" class="reminderBanner"><b>🔔 Bật nhắc hẹn ngay cả khi tắt app?</b><br>Cho phép thông báo để app gửi nhắc đúng phút bạn đã cài, kể cả khi bạn không mở app.<br><button class="primary" style="margin-top:8px" onclick="enablePush()">Bật thông báo nhắc hẹn</button> <button class="ghost" style="margin-top:8px" onclick="dismissPushBanner()">Để sau</button></div>
   <div id="views">
     <div id="view-tasks">
       <div class="card"><input id="search" placeholder="Tìm việc…" oninput="render()"></div>
@@ -364,7 +365,7 @@ async function boot(user){
   const h=new Date().getHours();
   document.getElementById("greet").textContent=(h<11?"Buổi sáng vui vẻ ☀️":h<18?"Buổi chiều nhẹ nhàng 🌤️":"Buổi tối thư giãn 🌙");
   document.getElementById("hello").textContent=meProfile.display_name;
-  applyAvatar(); startReminderEngine();
+  applyAvatar(); startReminderEngine(); showPushBannerIfNeeded(); if(pushSupported()&&Notification.permission==="granted"){subscribePush()}
   pickQuote(); loadWeather();
   document.getElementById("dateLine").textContent=new Date().toLocaleDateString("vi-VN",{weekday:"long",day:"numeric",month:"numeric",year:"numeric"});
   showView("tasks",document.querySelector('[data-v="tasks"]'));render();
@@ -413,8 +414,39 @@ async function saveTask(){
   if(editId){let res=await sb.from("tasks").update(data).eq("id",editId);if(res.error&&/remind_minutes|completed_at|column/i.test(res.error.message)){const d2={...data};delete d2.remind_minutes;res=await sb.from("tasks").update(d2).eq("id",editId);if(!res.error)alert("Đã lưu việc, nhưng database chưa có cột nhắc hẹn. Chạy lại schema.sql trong Supabase để bật nhắc theo phút nhé!")}if(res.error){alert("Lưu chưa được: "+res.error.message);return}}
   else{let res=await sb.from("tasks").insert({owner_id:meUser.id,done:false,...data}).select().single();if(res.error&&/remind_minutes|completed_at|column/i.test(res.error.message)){const d2={...data};delete d2.remind_minutes;res=await sb.from("tasks").insert({owner_id:meUser.id,done:false,...d2}).select().single();if(!res.error)alert("Đã lưu việc, nhưng database chưa có cột nhắc hẹn. Chạy lại schema.sql trong Supabase để bật nhắc theo phút nhé!")}if(res.error){alert("Lưu chưa được: "+res.error.message);return}}
   await loadAll();closeSheet();render();
+  if(remind!==null&&pushSupported()&&Notification.permission==="default"){try{localStorage.removeItem("todocute_push_dismissed")}catch(e){} showPushBannerIfNeeded(); const b=document.getElementById("pushBanner"); if(b)b.scrollIntoView({behavior:"smooth",block:"center"})}
+  if(remind!==null&&pushSupported()&&Notification.permission==="granted"){subscribePush()}
 }
-function askNotifyPermission(){if(!("Notification" in window)){refreshNotifyStatus();return}Notification.requestPermission().then(()=>{refreshNotifyStatus()}).catch(()=>{refreshNotifyStatus()})}
+function askNotifyPermission(){if(pushSupported()){enablePush().then(()=>refreshNotifyStatus())}else if(!("Notification" in window)){refreshNotifyStatus()}else{Notification.requestPermission().then(()=>{refreshNotifyStatus()}).catch(()=>{refreshNotifyStatus()})}}
+const VAPID_PUBLIC=(window.SUPABASE_CONFIG||{}).VAPID_PUBLIC_KEY||"";
+function pushSupported(){return ("serviceWorker" in navigator)&&("PushManager" in window)&&("Notification" in window)&&!!VAPID_PUBLIC}
+function urlB64ToUint8(b64){const pad="=".repeat((4-b64.length%4)%4);const raw=atob((b64+pad).replace(/-/g,"+").replace(/_/g,"/"));const arr=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);return arr}
+function showPushBannerIfNeeded(){
+  const b=document.getElementById("pushBanner"); if(!b)return;
+  let dismissed=false; try{dismissed=localStorage.getItem("todocute_push_dismissed")==="1"}catch(e){}
+  const need=pushSupported()&&Notification.permission==="default"&&!dismissed;
+  b.classList.toggle("show",!!need);
+}
+function dismissPushBanner(){try{localStorage.setItem("todocute_push_dismissed","1")}catch(e){} const b=document.getElementById("pushBanner"); if(b)b.classList.remove("show")}
+async function subscribePush(){
+  if(!pushSupported())return false;
+  try{
+    const reg=await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub){sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlB64ToUint8(VAPID_PUBLIC)})}
+    const j=sub.toJSON(); if(!j||!j.endpoint||!j.keys)return false;
+    const row={user_id:meUser.id,endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth,user_agent:navigator.userAgent.slice(0,200),updated_at:new Date().toISOString()};
+    const res=await sb.from("push_subscriptions").upsert(row,{onConflict:"endpoint"});
+    return !res.error;
+  }catch(e){console.error("subscribePush lỗi:",e);return false}
+}
+async function enablePush(){
+  if(!pushSupported()){alert("Trình duyệt này không hỗ trợ thông báo push. Trên iPhone, hãy cài app vào màn hình chính (Chia sẻ > Thêm vào màn hình chính) rồi mở app từ đó và bật lại nhé. App vẫn nhắc bằng banner khi bạn mở app.");return}
+  const perm=await Notification.requestPermission();
+  if(perm==="granted"){const ok=await subscribePush(); if(ok){dismissPushBanner();alert("Đã bật nhắc hẹn khi tắt app rồi! 🔔")}else{alert("Đã cho phép thông báo nhưng đăng ký push chưa được (có thể database chưa chạy mục 9 trong schema.sql). App vẫn nhắc bằng banner khi mở app.")}}
+  else if(perm==="denied"){alert("Bạn đã từ chối quyền thông báo nên app không xin lại được nữa. Muốn bật: vào cài đặt trình duyệt > quyền của trang này > Thông báo > Cho phép, rồi quay lại bật lại nhé.")}
+  showPushBannerIfNeeded();
+}
 function startReminderEngine(){if(window._remindTimer)clearInterval(window._remindTimer);checkReminders();window._remindTimer=setInterval(checkReminders,30000)}
 function checkReminders(){
   if(!meProfile)return; const now=Date.now(); const due=[];
