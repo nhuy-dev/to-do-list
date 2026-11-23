@@ -70,6 +70,36 @@ label{font-size:13px;font-weight:700;display:block;margin-top:10px}
 .swatch{width:34px;height:34px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px #ecd3d8;padding:0}
 .swatch.on{box-shadow:0 0 0 2.5px #e76f93}
 .nav button{font-size:11.5px;padding:6px 4px}
+/* Responsive + cỡ chữ vừa mắt cho cả điện thoại và máy tính */
+body{font-size:15px;line-height:1.5}
+.wrap{max-width:560px}
+.hero h1{font-size:clamp(20px,4.6vw,27px)}
+.hero p{font-size:clamp(13px,3.4vw,15px)}
+.quote{font-size:clamp(14px,3.6vw,16px);line-height:1.65}
+.card{padding:13px}
+input,select,textarea{font-size:15px;padding:10px 11px}
+button{font-size:14px}
+.primary{font-size:15px;padding:12px}
+.task b{font-size:15px}
+.meta{font-size:12px}
+h2{font-size:clamp(15px,4vw,17px)}
+h3{font-size:13.5px}
+.small{font-size:12.5px}
+.ring{width:60px;height:60px;font-size:14px}
+.weather .temp{font-size:21px}
+.sheetbox{padding:16px}
+.remindBox{background:#fff8f0;border:1.5px dashed #e8b7c2;border-radius:14px;padding:4px 12px 12px;margin-top:10px}
+@media (min-width:900px){
+  .wrap{max-width:680px;padding-top:28px}
+  .hero{padding:22px}
+  .task b{font-size:15.5px}
+}
+@media (max-width:380px){
+  .wrap{padding:14px 10px 8px}
+  .hero{padding:14px}
+  .card{padding:11px}
+  .fab{width:52px;height:52px;font-size:26px}
+}
 </style>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -102,9 +132,7 @@ label{font-size:13px;font-weight:700;display:block;margin-top:10px}
       <label>Chọn màu nền</label><div class="pickGrid" id="colorPick"></div>
       <label>Hoặc tải ảnh lên</label><input id="avatarFile" type="file" accept="image/*" onchange="onAvatarFile(this)">
       <p style="height:6px"></p><button class="ghost" style="width:100%" onclick="clearAvatarImage()">Xoá ảnh, dùng emoji/chữ</button>
-      <label>Nhắc hẹn mặc định (phút trước giờ hẹn, dùng cho việc mới)</label><input id="editRemindDefault" type="number" min="0" step="1" placeholder="Ví dụ: 15">
-      <p class="small">Thông báo trên máy: bấm nút dưới để cho phép app gửi thông báo nhắc hẹn.</p>
-      <button class="ghost" style="width:100%" onclick="askNotifyPermission()">🔔 Bật thông báo nhắc hẹn</button></div>
+      <p class="small">Avatar mới sẽ cập nhật ngay ở đầu trang, mục Bạn bè, Timeline và khắp nơi có hiện avatar, ngay khi bạn chọn — bấm "Lưu thay đổi" ở dưới để lưu hẳn.</p></div>
       <div class="card"><label>Tên hiển thị</label><input id="editName"><label>Username đăng nhập (chỉ sử dụng duy nhất 1 username)</label><input id="editUser" disabled>
       <label style="display:flex;gap:8px;align-items:center"><input id="editShare" type="checkbox" style="width:auto;margin:0"> Cho bạn bè xem timeline của mình</label>
       <p class="small">Khi bật, bạn bè đang follow bạn sẽ thấy cả việc và ghi chú của bạn ở Timeline của họ.</p>
@@ -128,9 +156,11 @@ label{font-size:13px;font-weight:700;display:block;margin-top:10px}
   <h2 id="sheetTitle" style="margin-top:0">Thêm việc mới ✨</h2>
   <label>Việc cần làm</label><input id="fTitle" placeholder="Ví dụ: Ôn bài, đi sự kiện, thể thao,…">
   <div class="row"><div><label>Danh mục</label><select id="fCat"></select></div><div><label>Ưu tiên</label><select id="fPri"><option>Bình thường</option><option>Quan trọng</option><option>Khẩn cấp</option></select></div></div>
-  <label>Ngày giờ hẹn</label><input id="fDue" type="datetime-local">
-  <div class="row"><div><label>Nhắc trước (phút)</label><input id="fRemind" type="number" min="0" step="1" placeholder="15"></div><div><label>Chọn nhanh</label><select id="fRemindPreset" onchange="if(this.value!==''){document.getElementById('fRemind').value=this.value}"><option value="">Tuỳ chỉnh →</option><option value="0">Đúng giờ</option><option value="5">5 phút</option><option value="10">10 phút</option><option value="15">15 phút</option><option value="30">30 phút</option><option value="60">1 giờ</option><option value="1440">1 ngày</option></select></div></div>
-  <p class="small">Để trống ô phút = không nhắc. Tự nhập số phút bất kỳ, ví dụ 45, 90, 120… App sẽ hiện banner + gửi thông báo (nếu đã bật) khi còn đúng số phút đó là tới giờ hẹn.</p>
+  <div class="remindBox"><label>📅 Ngày giờ hẹn</label><input id="fDue" type="datetime-local">
+  <div class="row"><div><label>🔔 Nhắc trước (phút)</label><input id="fRemind" type="number" min="0" step="1" placeholder="15"></div><div><label>Chọn nhanh</label><select id="fRemindPreset" onchange="if(this.value!==''){document.getElementById('fRemind').value=this.value}"><option value="">Tuỳ chỉnh →</option><option value="0">Đúng giờ</option><option value="5">5 phút</option><option value="10">10 phút</option><option value="15">15 phút</option><option value="30">30 phút</option><option value="60">1 giờ</option><option value="1440">1 ngày</option></select></div></div>
+  <p class="small">Để trống ô phút = không nhắc. Tự nhập số phút bất kỳ, ví dụ 45, 90, 120… Tới lúc nhắc, app hiện banner ngay trong app.</p>
+  <p class="small" id="notifyStatus"></p>
+  <button type="button" class="ghost" style="width:100%" onclick="askNotifyPermission()">🔔 Bật thêm thông báo trên máy (không bắt buộc)</button></div>
   <label>Ghi chú</label><textarea id="fNote" rows="2" placeholder="Ghi chú thêm…"></textarea>
   <p style="height:8px"></p><button class="primary" onclick="saveTask()">Lưu việc</button>
   <p style="height:8px"></p><button class="ghost" style="width:100%" onclick="closeSheet()">Đóng</button>
@@ -244,6 +274,19 @@ function avatarOf(p){if(!p)return{emoji:"",color:"",image:""};const la=(p&&mePro
 function avatarInner(p){const a=avatarOf(p);if(a.image)return `<img src="${a.image}" alt="">`;if(a.emoji)return esc(a.emoji);return esc(((p&&p.display_name)||"?").trim().charAt(0).toUpperCase()||"?")}
 function avatarStyle(p){const a=avatarOf(p);return a.color?`background:${a.color}`:""}
 function applyAvatar(){const el=document.getElementById("avatar");if(!el||!meProfile)return;el.innerHTML=avatarInner(meProfile);el.style.cssText=avatarStyle(meProfile)}
+function refreshAllAvatars(){
+  applyAvatar();
+  document.querySelectorAll("[data-avatar-for]").forEach(el=>{const pr=profileById(el.getAttribute("data-avatar-for"));if(pr){el.innerHTML=avatarInner(pr);el.style.cssText=avatarStyle(pr)}});
+  const pv=document.getElementById("avatarPreview");
+}
+function applyPendingAvatarLive(){
+  // Chưa bấm Lưu cũng cập nhật ngay avatar của mình ở mọi nơi đang hiện.
+  const backup={avatar_emoji:meProfile.avatar_emoji,avatar_color:meProfile.avatar_color,avatar_image:meProfile.avatar_image};
+  meProfile.avatar_emoji=pendingAvatar.emoji||null;meProfile.avatar_color=pendingAvatar.color||null;meProfile.avatar_image=pendingAvatar.image||null;
+  try{localStorage.setItem("todocute_avatar_"+meUser.id,JSON.stringify(pendingAvatar))}catch(e){}
+  refreshAllAvatars(); renderFriends();
+  meProfile.avatar_emoji=backup.avatar_emoji;meProfile.avatar_color=backup.avatar_color;meProfile.avatar_image=backup.avatar_image;
+}
 function esc(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function fmt(d){if(!d)return "";const x=new Date(d);return x.toLocaleString("vi-VN",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}
 function isToday(d){if(!d)return false;const x=new Date(d),n=new Date();return x.toDateString()===n.toDateString()}
@@ -358,9 +401,11 @@ async function toggleTask(id){const t=myTasks.find(x=>x.id===id);if(!t)return;co
 async function delTask(id){if(!confirm("Xoá việc này nhé?"))return;const res=await sb.from("tasks").delete().eq("id",id);if(!res.error){myTasks=myTasks.filter(x=>x.id!==id);render();renderHistory();}}
 async function clearDone(){if(!confirm("Xoá hẳn tất cả việc đã xong trong Lịch sử nhé?"))return;const res=await sb.from("tasks").delete().eq("owner_id",meUser.id).eq("done",true);if(!res.error){myTasks=myTasks.filter(t=>!t.done);render();renderHistory();}}
 function defaultRemind(){const v=localStorage.getItem("todocute_default_remind");return v===null?"15":v}
-function openSheet(){editId=null;document.getElementById("sheetTitle").textContent="Thêm việc mới ✨";document.getElementById("fTitle").value="";document.getElementById("fDue").value="";document.getElementById("fNote").value="";document.getElementById("fRemind").value=defaultRemind();document.getElementById("fRemindPreset").value="";document.getElementById("fCat").innerHTML=Object.keys(CATS).map(c=>`<option>${c}</option>`).join("");document.getElementById("sheet").classList.add("open")}
+function notifyStatusText(){if(!("Notification" in window))return "ℹ️ Trình duyệt này không hỗ trợ thông báo trên máy — không sao, app vẫn nhắc bằng banner trong app.";if(Notification.permission==="granted")return "✅ Đã bật thông báo trên máy.";if(Notification.permission==="denied")return "ℹ️ Thông báo trên máy đang bị tắt trong cài đặt trình duyệt — app vẫn nhắc bằng banner trong app.";return "Thông báo trên máy chưa bật — bấm nút dưới nếu muốn bật thêm, không bật vẫn có banner nhắc trong app."}
+function refreshNotifyStatus(){const el=document.getElementById("notifyStatus");if(el)el.textContent=notifyStatusText()}
+function openSheet(){refreshNotifyStatus();editId=null;document.getElementById("sheetTitle").textContent="Thêm việc mới ✨";document.getElementById("fTitle").value="";document.getElementById("fDue").value="";document.getElementById("fNote").value="";document.getElementById("fRemind").value=defaultRemind();document.getElementById("fRemindPreset").value="";document.getElementById("fCat").innerHTML=Object.keys(CATS).map(c=>`<option>${c}</option>`).join("");document.getElementById("sheet").classList.add("open")}
 function closeSheet(){document.getElementById("sheet").classList.remove("open")}
-function editTask(id){const t=myTasks.find(x=>x.id===id);if(!t)return;editId=id;document.getElementById("sheetTitle").textContent="Sửa việc ✏️";document.getElementById("fTitle").value=t.title;document.getElementById("fDue").value=toLocalInput(t.due_at);document.getElementById("fNote").value=t.note||"";document.getElementById("fRemind").value=(t.remind_minutes===null||t.remind_minutes===undefined)?"":t.remind_minutes;document.getElementById("fRemindPreset").value="";document.getElementById("fCat").innerHTML=Object.keys(CATS).map(c=>`<option ${c===t.category?"selected":""}>${c}</option>`).join("");document.getElementById("fPri").value=t.priority;document.getElementById("sheet").classList.add("open")}
+function editTask(id){const t=myTasks.find(x=>x.id===id);if(!t)return;refreshNotifyStatus();editId=id;document.getElementById("sheetTitle").textContent="Sửa việc ✏️";document.getElementById("fTitle").value=t.title;document.getElementById("fDue").value=toLocalInput(t.due_at);document.getElementById("fNote").value=t.note||"";document.getElementById("fRemind").value=(t.remind_minutes===null||t.remind_minutes===undefined)?"":t.remind_minutes;document.getElementById("fRemindPreset").value="";document.getElementById("fCat").innerHTML=Object.keys(CATS).map(c=>`<option ${c===t.category?"selected":""}>${c}</option>`).join("");document.getElementById("fPri").value=t.priority;document.getElementById("sheet").classList.add("open")}
 async function saveTask(){
   const title=document.getElementById("fTitle").value.trim();if(!title){alert("Nhập tên việc nhé!");return}
   const rv=document.getElementById("fRemind").value.trim(); const remind=(rv===""||!document.getElementById("fDue").value)?null:Math.max(0,parseInt(rv,10)||0);
@@ -369,7 +414,7 @@ async function saveTask(){
   else{let res=await sb.from("tasks").insert({owner_id:meUser.id,done:false,...data}).select().single();if(res.error&&/remind_minutes|completed_at|column/i.test(res.error.message)){const d2={...data};delete d2.remind_minutes;res=await sb.from("tasks").insert({owner_id:meUser.id,done:false,...d2}).select().single();if(!res.error)alert("Đã lưu việc, nhưng database chưa có cột nhắc hẹn. Chạy lại schema.sql trong Supabase để bật nhắc theo phút nhé!")}if(res.error){alert("Lưu chưa được: "+res.error.message);return}}
   await loadAll();closeSheet();render();
 }
-function askNotifyPermission(){if(!("Notification" in window)){alert("Trình duyệt này không hỗ trợ thông báo.");return}Notification.requestPermission().then(p=>alert(p==="granted"?"Đã bật thông báo nhắc hẹn rồi!":"Bạn chưa cho phép thông báo, app vẫn sẽ hiện banner nhắc trong app nhé."))}
+function askNotifyPermission(){if(!("Notification" in window)){refreshNotifyStatus();return}Notification.requestPermission().then(()=>{refreshNotifyStatus()}).catch(()=>{refreshNotifyStatus()})}
 function startReminderEngine(){if(window._remindTimer)clearInterval(window._remindTimer);checkReminders();window._remindTimer=setInterval(checkReminders,30000)}
 function checkReminders(){
   if(!meProfile)return; const now=Date.now(); const due=[];
@@ -381,7 +426,7 @@ function checkReminders(){
   const b=document.getElementById("reminderBanner"); if(b){b.innerHTML="🔔 <b>Sắp tới giờ hẹn:</b><br>"+due.map(t=>esc(t.title)+" — ⏰ "+fmt(t.due_at)+" (nhắc trước "+t.remind_minutes+" phút)").join("<br>")+`<br><button class="ghost" style="margin-top:8px" onclick="document.getElementById('reminderBanner').classList.remove('show')">Đã biết</button>`;b.classList.add("show")}
   if("Notification" in window&&Notification.permission==="granted"){due.forEach(t=>{try{new Notification("🔔 Sắp tới giờ: "+t.title,{body:"Giờ hẹn: "+fmt(t.due_at)})}catch(e){}})}
 }
-function userRow(u){const fol=myFollows.includes(u.id);return `<div class="user"><div style="display:flex;gap:10px;align-items:center"><div class="miniAvatar" style="${avatarStyle(u)}">${avatarInner(u)}</div><div><b>${esc(u.display_name)}</b><div class="small">@${esc(u.username)} • ${u.share_timeline?"đang chia sẻ timeline":"chưa chia sẻ timeline"}</div></div></div><button class="${fol?"ghost":"primary"}" style="width:auto" onclick="toggleFollow('${u.id}')">${fol?"Đang follow":"Follow"}</button></div>`}
+function userRow(u){const fol=myFollows.includes(u.id);return `<div class="user"><div style="display:flex;gap:10px;align-items:center"><div class="miniAvatar" data-avatar-for="${u.id}" style="${avatarStyle(u)}">${avatarInner(u)}</div><div><b>${esc(u.display_name)}</b><div class="small">@${esc(u.username)} • ${u.share_timeline?"đang chia sẻ timeline":"chưa chia sẻ timeline"}</div></div></div><button class="${fol?"ghost":"primary"}" style="width:auto" onclick="toggleFollow('${u.id}')">${fol?"Đang follow":"Follow"}</button></div>`}
 function renderFriends(){
   // Chỉ hiện người ĐÃ follow ở mục riêng. Không hiện sẵn toàn bộ user nữa.
   const following=allProfiles.filter(u=>u.id!==meUser.id&&myFollows.includes(u.id));
@@ -414,7 +459,7 @@ async function renderTimeline(){
   if(!myFollows.length){el.innerHTML=`<div class="center">Chưa có gì để xem.<br>Follow một người bạn và nhờ họ bật chia sẻ timeline nhé!</div>`;return}
   const res=await sb.from("tasks").select("*").in("owner_id",myFollows).order("due_at",{ascending:true});
   const list=(res.data||[]).filter(t=>{const p=profileById(t.owner_id);return p&&p.share_timeline});
-  el.innerHTML=list.map(t=>{const u=profileById(t.owner_id);return `<div class="card"><b>${esc(t.title)}</b><div class="meta">${u&&avatarOf(u).emoji?esc(avatarOf(u).emoji)+" ":"👤 "}${esc(u?u.display_name:t.owner_id)} • <span class="tag" style="background:${CATS[t.category]||"#e8e8e8"}">${esc(t.category)}</span>${t.done?"✅ Đã xong":"⏳ Đang làm"}${t.due_at?" • "+fmt(t.due_at):""}</div>${t.note?`<div class="note">📝 ${esc(t.note)}</div>`:""}</div>`}).join("")||`<div class="center">Chưa có gì để xem.<br>Follow một người bạn và nhờ họ bật chia sẻ timeline nhé!</div>`;
+  el.innerHTML=list.map(t=>{const u=profileById(t.owner_id);return `<div class="card"><div style="display:flex;gap:10px;align-items:center"><div class="miniAvatar" data-avatar-for="${t.owner_id}" style="${u?avatarStyle(u):""}">${u?avatarInner(u):"?"}</div><div><b>${esc(t.title)}</b><div class="meta">👤 ${esc(u?u.display_name:t.owner_id)} • <span class="tag" style="background:${CATS[t.category]||"#e8e8e8"}">${esc(t.category)}</span>${t.done?"✅ Đã xong":"⏳ Đang làm"}${t.due_at?" • "+fmt(t.due_at):""}</div></div></div>${t.note?`<div class="note">📝 ${esc(t.note)}</div>`:""}</div>`}).join("")||`<div class="center">Chưa có gì để xem.<br>Follow một người bạn và nhờ họ bật chia sẻ timeline nhé!</div>`;
 }
 function renderAvatarPicker(){
   const pv=document.getElementById("avatarPreview"); if(!pv)return;
@@ -423,24 +468,26 @@ function renderAvatarPicker(){
   document.getElementById("emojiPick").innerHTML=AVATAR_EMOJIS.map(e=>`<button class="pick ${pendingAvatar.emoji===e?"on":""}" onclick="pickAvatarEmoji('${e}')">${e}</button>`).join("");
   document.getElementById("colorPick").innerHTML=AVATAR_COLORS.map(c=>`<button class="swatch ${pendingAvatar.color===c?"on":""}" style="background:${c}" onclick="pickAvatarColor('${c}')"></button>`).join("");
 }
-function pickAvatarEmoji(e){pendingAvatar.emoji=e;pendingAvatar.image="";renderAvatarPicker()}
-function pickAvatarColor(c){pendingAvatar.color=c;renderAvatarPicker()}
-function clearAvatarImage(){pendingAvatar.image="";const f=document.getElementById("avatarFile");if(f)f.value="";renderAvatarPicker()}
-function onAvatarFile(input){const file=input.files&&input.files[0];if(!file)return;const img=new Image();const url=URL.createObjectURL(file);img.onload=function(){const max=160,sc=Math.min(1,max/Math.max(img.width,img.height));const cv=document.createElement("canvas");cv.width=Math.round(img.width*sc);cv.height=Math.round(img.height*sc);cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);URL.revokeObjectURL(url);pendingAvatar.image=cv.toDataURL("image/jpeg",0.85);renderAvatarPicker()};img.src=url}
+function pickAvatarEmoji(e){pendingAvatar.emoji=e;pendingAvatar.image="";renderAvatarPicker();applyPendingAvatarLive()}
+function pickAvatarColor(c){pendingAvatar.color=c;renderAvatarPicker();applyPendingAvatarLive()}
+function clearAvatarImage(){pendingAvatar.image="";const f=document.getElementById("avatarFile");if(f)f.value="";renderAvatarPicker();applyPendingAvatarLive()}
+function onAvatarFile(input){const file=input.files&&input.files[0];if(!file)return;const img=new Image();const url=URL.createObjectURL(file);img.onload=function(){const max=160,sc=Math.min(1,max/Math.max(img.width,img.height));const cv=document.createElement("canvas");cv.width=Math.round(img.width*sc);cv.height=Math.round(img.height*sc);cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);URL.revokeObjectURL(url);pendingAvatar.image=cv.toDataURL("image/jpeg",0.85);renderAvatarPicker();applyPendingAvatarLive()};img.src=url}
 function renderProfile(){document.getElementById("editName").value=meProfile.display_name;document.getElementById("editUser").value=meProfile.username;document.getElementById("editShare").checked=!!meProfile.share_timeline;
-  pendingAvatar=avatarOf(meProfile); document.getElementById("editRemindDefault").value=defaultRemind(); renderAvatarPicker();
+  pendingAvatar=avatarOf(meProfile); renderAvatarPicker(); refreshAllAvatars();
   const f=myFollows.length;document.getElementById("followStats").textContent=`Đang follow ${f} người`}
 async function saveProfile(){
   const nn=document.getElementById("editName").value.trim();
   if(!nn){alert("Nhập tên hiển thị nhé!");return}
-  try{localStorage.setItem("todocute_default_remind",document.getElementById("editRemindDefault").value.trim());localStorage.setItem("todocute_avatar_"+meUser.id,JSON.stringify(pendingAvatar))}catch(e){}
+  try{localStorage.setItem("todocute_avatar_"+meUser.id,JSON.stringify(pendingAvatar))}catch(e){}
   const payload={display_name:nn,share_timeline:document.getElementById("editShare").checked,avatar_emoji:pendingAvatar.emoji||null,avatar_color:pendingAvatar.color||null,avatar_image:pendingAvatar.image||null};
   let res=await sb.from("profiles").update(payload).eq("id",meUser.id);
   let avatarSavedToDb=true;
   if(res.error&&/avatar_|column/i.test(res.error.message)){avatarSavedToDb=false;res=await sb.from("profiles").update({display_name:nn,share_timeline:payload.share_timeline}).eq("id",meUser.id)}
   if(res.error){alert("Lưu chưa được: "+res.error.message);return}
   meProfile.display_name=nn;meProfile.share_timeline=payload.share_timeline;meProfile.avatar_emoji=payload.avatar_emoji;meProfile.avatar_color=payload.avatar_color;meProfile.avatar_image=payload.avatar_image;
-  await loadAll();applyAvatar();alert(avatarSavedToDb?"Đã lưu hồ sơ + avatar rồi!":"Đã lưu hồ sơ + avatar trên máy này. Để avatar đồng bộ mọi máy, chạy lại schema.sql trong Supabase nhé!");boot(meUser);
+  document.getElementById("hello").textContent=nn;
+  await loadAll(); refreshAllAvatars(); render(); renderHistory(); renderFriends();
+  alert(avatarSavedToDb?"Đã lưu hồ sơ + avatar rồi! Avatar đã cập nhật ở mọi mục.":"Đã lưu hồ sơ + avatar trên máy này. Để avatar đồng bộ mọi máy, chạy lại schema.sql trong Supabase nhé!");
 }
 (async function init(){
   if(!CONFIGURED){showAuth();return}
